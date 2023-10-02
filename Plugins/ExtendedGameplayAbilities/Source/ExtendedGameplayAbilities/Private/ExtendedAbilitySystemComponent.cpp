@@ -99,3 +99,13 @@ void UExtendedAbilitySystemComponent::AbilityTagInputReleased(const FGameplayTag
 		}
 	}
 }
+
+void UExtendedAbilitySystemComponent::PressInputTag(const FGameplayTag& InputTag)
+{
+	AbilityTagInputPressed(InputTag);
+}
+
+void UExtendedAbilitySystemComponent::ReleaseInputTag(const FGameplayTag& InputTag)
+{
+	AbilityTagInputReleased(InputTag);
+}

@@ -3,7 +3,19 @@
 #include "GameplayEffectSet.h"
 
 
-bool FGameplayEffectSpecSet::HasValidEffects() const
+// FGameplayEffectSet
+// ------------------
+
+bool FGameplayEffectSet::IsEmpty() const
 {
-	return EffectSpecs.Num() > 0;
+	return Effects.IsEmpty();
+}
+
+
+// FGameplayEffectSpecSet
+// ----------------------
+
+bool FGameplayEffectSpecSet::IsEmpty() const
+{
+	return EffectSpecs.IsEmpty();
 }

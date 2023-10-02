@@ -34,6 +34,9 @@ struct EXTENDEDGAMEPLAYABILITIES_API FGameplayEffectSet
 	/** Map of default set-by-caller values to use for all effects. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|GameplayEffectSets")
 	TMap<FGameplayTag, FScalableFloat> SetByCallerMagnitudes;
+
+	/** Return true if this set has no effects. */
+	bool IsEmpty() const;
 };
 
 
@@ -53,6 +56,6 @@ struct EXTENDEDGAMEPLAYABILITIES_API FGameplayEffectSpecSet
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|GameplayEffectSets")
 	TArray<FGameplayEffectSpecHandle> EffectSpecs;
 
-	/** Return true if this set has any valid effect specs. */
-	bool HasValidEffects() const;
+	/** Return true if set has no valid effect specs. */
+	bool IsEmpty() const;
 };
