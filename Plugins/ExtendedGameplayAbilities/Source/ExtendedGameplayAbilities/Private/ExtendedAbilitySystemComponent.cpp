@@ -1,0 +1,44 @@
+﻿// Copyright Bohdon Sayre, All Rights Reserved.
+
+#include "ExtendedAbilitySystemComponent.h"
+
+
+UExtendedAbilitySystemComponent::UExtendedAbilitySystemComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+FGameplayEffectSpecSet UExtendedAbilitySystemComponent::MakeEffectSpecSet(const FGameplayEffectSet& EffectSet, float Level)
+{
+	FGameplayEffectSpecSet SpecSet;
+	for (const TSubclassOf<UGameplayEffect> GameplayEffect : EffectSet.Effects)
+	{
+		FGameplayEffectSpecHandle Spec = MakeOutgoingSpec(GameplayEffect, Level, MakeEffectContext());
+		if (Spec.IsValid())
+		{
+			// assign set-by-caller magnitudes
+			for (const auto& Item : EffectSet.SetByCallerMagnitudes)
+			{
+				const float Value = Item.Value.GetValueAtLevel(Level);
+				Spec.Data->SetByCallerTagMagnitudes.Add(Item.Key, Value);
+			}
+
+			SpecSet.EffectSpecs.Add(Spec);
+		}
+	}
+	return SpecSet;
+}
+
+TArray<FActiveGameplayEffectHandle> UExtendedAbilitySystemComponent::ApplyGameplayEffectSpecSetToSelf(const FGameplayEffectSpecSet& EffectSpecSet)
+{
+	TArray<FActiveGameplayEffectHandle> Result;
+	for (const FGameplayEffectSpecHandle& SpecHandle : EffectSpecSet.EffectSpecs)
+	{
+		FActiveGameplayEffectHandle NewHandle = ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get(), GetPredictionKeyForNewAction());
+		if (NewHandle.IsValid())
+		{
+			Result.Add(NewHandle);
+		}
+	}
+	return Result;
+}
