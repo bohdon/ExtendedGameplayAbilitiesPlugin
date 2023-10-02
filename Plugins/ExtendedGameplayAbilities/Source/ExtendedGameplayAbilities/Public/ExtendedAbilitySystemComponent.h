@@ -7,6 +7,8 @@
 #include "GameplayEffectSet.h"
 #include "ExtendedAbilitySystemComponent.generated.h"
 
+class UExtendedAbilitySet;
+
 
 /**
  * Extends the AbilitySystemComponent with support for gameplay effect sets and more.
@@ -18,6 +20,10 @@ class EXTENDEDGAMEPLAYABILITIES_API UExtendedAbilitySystemComponent : public UAb
 
 public:
 	UExtendedAbilitySystemComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	/** Abilities, effects, and attribute sets to grant at startup. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Sets")
+	TArray<TObjectPtr<UExtendedAbilitySet>> StartupAbilitySets;
 
 	/**
 	 * Create and return an effect spec set.
@@ -32,4 +38,12 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, DisplayName = "ApplyGameplayEffectSpecSetToSelf", Category = "GameplayEffects")
 	TArray<FActiveGameplayEffectHandle> ApplyGameplayEffectSpecSetToSelf(const FGameplayEffectSpecSet& EffectSpecSet);
+
+	virtual void InitializeComponent() override;
+
+	/** Called when ability input has been pressed by tag. */
+	void AbilityTagInputPressed(const FGameplayTag& InputTag);
+
+	/** Called when ability input has been released by tag. */
+	void AbilityTagInputReleased(const FGameplayTag& InputTag);
 };

@@ -2,6 +2,8 @@
 
 #include "ExtendedAbilitySystemComponent.h"
 
+#include "ExtendedAbilitySet.h"
+
 
 UExtendedAbilitySystemComponent::UExtendedAbilitySystemComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -41,4 +43,59 @@ TArray<FActiveGameplayEffectHandle> UExtendedAbilitySystemComponent::ApplyGamepl
 		}
 	}
 	return Result;
+}
+
+void UExtendedAbilitySystemComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+
+	// apply startup ability sets
+	for (const UExtendedAbilitySet* AbilitySet : StartupAbilitySets)
+	{
+		AbilitySet->GiveToAbilitySystem(this, this);
+	}
+}
+
+void UExtendedAbilitySystemComponent::AbilityTagInputPressed(const FGameplayTag& InputTag)
+{
+	if (!InputTag.IsValid())
+	{
+		return;
+	}
+
+	for (FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+	{
+		if (Spec.Ability && Spec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			Spec.InputPressed = true;
+			if (Spec.IsActive())
+			{
+				AbilitySpecInputPressed(Spec);
+			}
+			else
+			{
+				TryActivateAbility(Spec.Handle);
+			}
+		}
+	}
+}
+
+void UExtendedAbilitySystemComponent::AbilityTagInputReleased(const FGameplayTag& InputTag)
+{
+	if (!InputTag.IsValid())
+	{
+		return;
+	}
+
+	for (FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+	{
+		if (Spec.Ability && Spec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			Spec.InputPressed = false;
+			if (Spec.IsActive())
+			{
+				AbilitySpecInputReleased(Spec);
+			}
+		}
+	}
 }

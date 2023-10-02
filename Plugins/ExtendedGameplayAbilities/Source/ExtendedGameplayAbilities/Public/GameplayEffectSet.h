@@ -15,7 +15,7 @@ class UGameplayEffect;
  * Represents a group of gameplay effects that can be applied together on a target.
  * This concept is demonstrated in Epic's Action RPG Sample:
  * https://www.unrealengine.com/marketplace/en-US/product/action-rpg
- * ...and talked about in the tradek GAS documentation:
+ * ...and talked about in the tranek GAS documentation:
  * https://github.com/tranek/GASDocumentation
  */
 USTRUCT(BlueprintType)
