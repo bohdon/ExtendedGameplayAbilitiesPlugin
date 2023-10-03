@@ -70,7 +70,15 @@ void UExtendedAbilitySystemComponent::AbilityTagInputPressed(const FGameplayTag&
 			Spec.InputPressed = true;
 			if (Spec.IsActive())
 			{
+				if (Spec.Ability->bReplicateInputDirectly && IsOwnerActorAuthoritative() == false)
+				{
+					ServerSetInputPressed(Spec.Handle);
+				}
+
 				AbilitySpecInputPressed(Spec);
+
+				// Invoke the InputPressed event. This is not replicated here. If someone is listening, they may replicate the InputPressed event to the server.
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, Spec.Handle, Spec.ActivationInfo.GetActivationPredictionKey());
 			}
 			else
 			{
@@ -94,7 +102,14 @@ void UExtendedAbilitySystemComponent::AbilityTagInputReleased(const FGameplayTag
 			Spec.InputPressed = false;
 			if (Spec.IsActive())
 			{
+				if (Spec.Ability->bReplicateInputDirectly && IsOwnerActorAuthoritative() == false)
+				{
+					ServerSetInputReleased(Spec.Handle);
+				}
+
 				AbilitySpecInputReleased(Spec);
+
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, Spec.Handle, Spec.ActivationInfo.GetActivationPredictionKey());
 			}
 		}
 	}
