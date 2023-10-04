@@ -90,6 +90,16 @@ void UExtendedGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Ha
 	}
 }
 
+void UExtendedGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnAvatarSet(ActorInfo, Spec);
+
+	if (bActivateWhenGranted && ActorInfo && ActorInfo->AbilitySystemComponent.IsValid())
+	{
+		ActorInfo->AbilitySystemComponent->TryActivateAbility(Spec.Handle, false);
+	}
+}
+
 FGameplayEffectSet UExtendedGameplayAbility::GetEffectSet(FGameplayTag Tag) const
 {
 	return EffectSetMap.FindRef(Tag);

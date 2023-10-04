@@ -89,6 +89,8 @@ public:
 	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	                           const FGameplayAbilityActivationInfo ActivationInfo) const override;
 
+	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+
 	/** Return an effect set from the EffectSetMap by tag. */
 	UFUNCTION(BlueprintPure, Category = "Ability|GameplayEffect")
 	FGameplayEffectSet GetEffectSet(FGameplayTag Tag) const;
