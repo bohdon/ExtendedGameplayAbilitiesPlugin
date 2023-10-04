@@ -11,6 +11,7 @@ public class ExtendedGameplayAbilities : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
+			"DataRegistry",
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",

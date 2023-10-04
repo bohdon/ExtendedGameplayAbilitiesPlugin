@@ -24,6 +24,10 @@ public:
 	UFUNCTION(BlueprintPure, Meta = (DefaultToSelf = "Actor"), Category = "Ability")
 	static UExtendedAbilitySystemComponent* GetExtendedAbilitySystemComponent(AActor* Actor);
 
+	/** Set a gameplay tag Set By Caller magnitude value for all effects in a set. */
+	UFUNCTION(BlueprintCallable, Meta = (DisplayName = "Assign Tag Set By Caller Magnitude (For Set)"), Category = "Ability|GameplayEffect")
+	static FGameplayEffectSpecSet AssignTagSetByCallerMagnitudeForSet(FGameplayEffectSpecSet EffectSpecSet, FGameplayTag DataTag, float Magnitude);
+
 	/**
 	 * Apply a gameplay effect spec set to an actor, if it has an ability system.
 	 * @param Actor The actor to apply effects to.
@@ -67,4 +71,26 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ability|GameplayEffect")
 	static int32 RemoveEffectsFromActorBySourceObject(AActor* Actor, const UObject* SourceObject,
 	                                                  UPARAM(Ref) TArray<AActor*>& AffectedActors);
+
+	/**
+	 * Change an attribute proportionally based on the change to another attribute.
+	 * This is useful for example if MaxHP increases or decreases, and you want HP to remain the same % of MaxHP as it was before the change.
+	 * Intended to be called in UAttributeSet::PostAttributeChange when the max attribute has changed.
+	 * @param AbilitySystem The ability system where the attribute exists.
+	 * @param Attribute The attribute whose value will be adjusted.
+	 * @param OldRelatedValue The old value of the related attribute
+	 * @param NewRelatedValue The new value of the related attribute
+	 * @param bRound Round the value to an integer.
+	 * @param bClamp Clamp the value to not exceed the new related attribute's value.
+	 */
+	static void AdjustProportionalAttribute(UAbilitySystemComponent* AbilitySystem, const FGameplayAttribute& Attribute,
+	                                        float OldRelatedValue, float NewRelatedValue,
+	                                        bool bRound = true, bool bClamp = true);
+
+	/**
+	 * Return the value of a data registry curve at an input time/level/value.
+	 * Return the DefaultValue if the curve is not found.
+	 */
+	UFUNCTION(BlueprintPure, Meta = (AdvancedDisplay = "2"))
+	static float GetDataRegistryValue(FDataRegistryId Id, float InputValue = 0.f, float DefaultValue = 0.f);
 };

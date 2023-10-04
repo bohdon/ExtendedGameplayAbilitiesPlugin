@@ -13,7 +13,7 @@ class UExtendedAbilitySet;
 /**
  * Extends the AbilitySystemComponent with support for gameplay effect sets and more.
  */
-UCLASS()
+UCLASS(Meta = (BlueprintSpawnableComponent))
 class EXTENDEDGAMEPLAYABILITIES_API UExtendedAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()

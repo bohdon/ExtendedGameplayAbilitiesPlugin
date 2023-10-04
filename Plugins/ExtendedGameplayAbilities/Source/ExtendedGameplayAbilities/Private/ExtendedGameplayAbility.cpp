@@ -6,6 +6,7 @@
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
 #include "ExtendedAbilitySystemComponent.h"
+#include "ExtendedAbilitySystemStatics.h"
 #include "ExtendedGameplayAbilitiesSettings.h"
 
 
@@ -166,4 +167,10 @@ TArray<FActiveGameplayEffectHandle> UExtendedGameplayAbility::ApplyEffectSpecSet
 	}
 
 	return ExtendedAbilitySystem->ApplyGameplayEffectSpecSetToSelf(EffectSpecSet);
+}
+
+float UExtendedGameplayAbility::GetAbilityStat(FDataRegistryId Id, float DefaultValue) const
+{
+	const float InputValue = static_cast<float>(GetAbilityLevel());
+	return UExtendedAbilitySystemStatics::GetDataRegistryValue(Id, InputValue, DefaultValue);
 }

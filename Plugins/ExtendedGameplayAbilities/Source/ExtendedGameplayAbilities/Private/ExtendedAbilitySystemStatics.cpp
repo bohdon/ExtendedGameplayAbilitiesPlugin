@@ -4,12 +4,27 @@
 #include "ExtendedAbilitySystemStatics.h"
 
 #include "AbilitySystemGlobals.h"
+#include "DataRegistrySubsystem.h"
 #include "ExtendedAbilitySystemComponent.h"
 
 
 UExtendedAbilitySystemComponent* UExtendedAbilitySystemStatics::GetExtendedAbilitySystemComponent(AActor* Actor)
 {
 	return Cast<UExtendedAbilitySystemComponent>(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor));
+}
+
+FGameplayEffectSpecSet UExtendedAbilitySystemStatics::AssignTagSetByCallerMagnitudeForSet(FGameplayEffectSpecSet EffectSpecSet, FGameplayTag DataTag,
+                                                                                          float Magnitude)
+{
+	for (FGameplayEffectSpecHandle SpecHandle : EffectSpecSet.EffectSpecs)
+	{
+		FGameplayEffectSpec* Spec = SpecHandle.Data.Get();
+		if (Spec)
+		{
+			Spec->SetSetByCallerMagnitude(DataTag, Magnitude);
+		}
+	}
+	return EffectSpecSet;
 }
 
 TArray<FActiveGameplayEffectHandle> UExtendedAbilitySystemStatics::ApplyEffectSpecSetToActor(AActor* Actor, const FGameplayEffectSpecSet& EffectSpecSet,
@@ -73,4 +88,43 @@ int32 UExtendedAbilitySystemStatics::RemoveEffectsFromActorBySourceObject(AActor
 	}
 
 	return 0;
+}
+
+void UExtendedAbilitySystemStatics::AdjustProportionalAttribute(UAbilitySystemComponent* AbilitySystem, const FGameplayAttribute& Attribute,
+                                                                float OldRelatedValue, float NewRelatedValue, bool bRound, bool bClamp)
+{
+	if (!AbilitySystem || FMath::IsNearlyEqual(OldRelatedValue, NewRelatedValue))
+	{
+		return;
+	}
+
+	const float CurrentValue = AbilitySystem->GetNumericAttributeBase(Attribute);
+
+	float NewValue = OldRelatedValue > 0.f ? CurrentValue * (NewRelatedValue / OldRelatedValue) : NewRelatedValue;
+
+	if (bRound)
+	{
+		NewValue = FMath::RoundFromZero(NewValue);
+	}
+
+	if (bClamp)
+	{
+		NewValue = FMath::Min(NewValue, NewRelatedValue);
+	}
+
+	AbilitySystem->SetNumericAttributeBase(Attribute, NewValue);
+}
+
+float UExtendedAbilitySystemStatics::GetDataRegistryValue(FDataRegistryId Id, float InputValue, float DefaultValue)
+{
+	const UDataRegistrySubsystem* DataRegistrySubsystem = UDataRegistrySubsystem::Get();
+
+	float OutValue;
+	const FRealCurve* FoundCurve = nullptr;
+	if (DataRegistrySubsystem->EvaluateCachedCurve(OutValue, FoundCurve, Id, InputValue, DefaultValue))
+	{
+		return OutValue;
+	}
+
+	return DefaultValue;
 }

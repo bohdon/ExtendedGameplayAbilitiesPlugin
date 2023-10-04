@@ -102,6 +102,12 @@ FExtendedAbilitySetHandles UExtendedAbilitySet::GiveToAbilitySystem(UAbilitySyst
 			continue;
 		}
 
+		if (AbilitySystem->GetAttributeSet(SetToGrant.AttributeSet))
+		{
+			// attribute set already exists
+			continue;
+		}
+
 		UAttributeSet* NewSet = NewObject<UAttributeSet>(AbilitySystem->GetOwner(), SetToGrant.AttributeSet);
 		AbilitySystem->AddSpawnedAttribute(NewSet);
 
