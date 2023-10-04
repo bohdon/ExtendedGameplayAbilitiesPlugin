@@ -1,6 +1,5 @@
 ﻿// Copyright Bohdon Sayre, All Rights Reserved.
 
-
 #include "ExtendedAbilitySet.h"
 
 #include "AbilitySystemComponent.h"
@@ -39,44 +38,6 @@ void FExtendedAbilitySetHandles::AddAttributeSet(UAttributeSet* AttributeSet)
 	if (IsValid(AttributeSet))
 	{
 		AttributeSets.Add(AttributeSet);
-	}
-}
-
-void FExtendedAbilitySetHandles::RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem) const
-{
-	check(AbilitySystem);
-
-
-	if (!AbilitySystem->IsOwnerActorAuthoritative())
-	{
-		return;
-	}
-
-	// remove abilities
-	for (const FGameplayAbilitySpecHandle& Handle : AbilitySpecHandles)
-	{
-		if (Handle.IsValid())
-		{
-			AbilitySystem->ClearAbility(Handle);
-		}
-	}
-
-	// remove effects
-	for (const FActiveGameplayEffectHandle& Handle : GameplayEffectHandles)
-	{
-		if (Handle.IsValid())
-		{
-			AbilitySystem->RemoveActiveGameplayEffect(Handle);
-		}
-	}
-
-	// remove attribute sets
-	for (UAttributeSet* Set : AttributeSets)
-	{
-		if (IsValid(Set))
-		{
-			AbilitySystem->RemoveSpawnedAttribute(Set);
-		}
 	}
 }
 
@@ -149,6 +110,45 @@ FExtendedAbilitySetHandles UExtendedAbilitySet::GiveToAbilitySystem(UAbilitySyst
 	}
 
 	return Result;
+}
+
+void UExtendedAbilitySet::RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem, FExtendedAbilitySetHandles AbilitySetHandles)
+{
+	check(AbilitySystem);
+
+	if (!AbilitySystem->IsOwnerActorAuthoritative())
+	{
+		return;
+	}
+
+	// remove abilities
+	for (const FGameplayAbilitySpecHandle& Handle : AbilitySetHandles.AbilitySpecHandles)
+	{
+		if (Handle.IsValid())
+		{
+			AbilitySystem->ClearAbility(Handle);
+		}
+	}
+
+	// remove effects
+	for (const FActiveGameplayEffectHandle& Handle : AbilitySetHandles.GameplayEffectHandles)
+	{
+		if (Handle.IsValid())
+		{
+			AbilitySystem->RemoveActiveGameplayEffect(Handle);
+		}
+	}
+
+	// remove attribute sets
+	for (UAttributeSet* Set : AbilitySetHandles.AttributeSets)
+	{
+		if (IsValid(Set))
+		{
+			AbilitySystem->RemoveSpawnedAttribute(Set);
+		}
+	}
+
+	AbilitySetHandles.Reset();
 }
 
 FGameplayAbilitySpec UExtendedAbilitySet::CreateAbilitySpec(const FExtendedAbilitySetAbility& AbilityToGrant, UAbilitySystemComponent* AbilitySystem,

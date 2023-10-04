@@ -98,9 +98,6 @@ struct EXTENDEDGAMEPLAYABILITIES_API FExtendedAbilitySetHandles
 	void AddGameplayEffectHandle(const FActiveGameplayEffectHandle& Handle);
 
 	void AddAttributeSet(UAttributeSet* AttributeSet);
-
-	/** Remove these abilities and effects from an ability system. */
-	void RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem) const;
 };
 
 
@@ -136,6 +133,9 @@ public:
 	virtual FExtendedAbilitySetHandles GiveToAbilitySystem(UAbilitySystemComponent* AbilitySystem,
 	                                                       UObject* SourceObject = nullptr,
 	                                                       int32 OverrideLevel = -1) const;
+
+	static void RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem,
+	                                    FExtendedAbilitySetHandles AbilitySetHandles);
 
 protected:
 	/** Create and return a new ability spec to add to the ability system. */
