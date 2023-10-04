@@ -21,8 +21,12 @@ class EXTENDEDGAMEPLAYABILITIES_API UExtendedAbilitySystemComponent : public UAb
 public:
 	UExtendedAbilitySystemComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	/** Loose gameplay tags to add to this ability system, usually character type, object type, or other traits. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defaults")
+	FGameplayTagContainer DefaultTags;
+
 	/** Abilities, effects, and attribute sets to grant at startup. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Sets")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defaults")
 	TArray<TObjectPtr<UExtendedAbilitySet>> StartupAbilitySets;
 
 	/**

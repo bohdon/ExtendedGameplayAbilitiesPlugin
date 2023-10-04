@@ -49,6 +49,13 @@ void UExtendedAbilitySystemComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
+	// apply default tags
+	for (const FGameplayTag& DefaultTag : DefaultTags)
+	{
+		SetLooseGameplayTagCount(DefaultTag, 1);
+		SetReplicatedLooseGameplayTagCount(DefaultTag, 1);
+	}
+
 	// apply startup ability sets
 	for (const UExtendedAbilitySet* AbilitySet : StartupAbilitySets)
 	{
