@@ -8,6 +8,7 @@
 #include "ExtendedAbilitySystemComponent.h"
 #include "ExtendedAbilitySystemStatics.h"
 #include "ExtendedGameplayAbilitiesSettings.h"
+#include "GameFramework/Character.h"
 
 
 UExtendedGameplayAbility::UExtendedGameplayAbility(const FObjectInitializer& ObjectInitializer)
@@ -185,17 +186,49 @@ float UExtendedGameplayAbility::GetAbilityStat(FDataRegistryId Id, float Default
 	return UExtendedAbilitySystemStatics::GetDataRegistryValue(Id, InputValue, DefaultValue);
 }
 
-APlayerController* UExtendedGameplayAbility::GetPlayerControllerFromActorInfo() const
+APawn* UExtendedGameplayAbility::GetPawnFromActorInfo() const
 {
-	// check if already set in actor info
+	return Cast<APawn>(GetAvatarActorFromActorInfo());
+}
+
+ACharacter* UExtendedGameplayAbility::GetCharacterFromActorInfo() const
+{
+	return Cast<ACharacter>(GetAvatarActorFromActorInfo());
+}
+
+AController* UExtendedGameplayAbility::GetControllerFromActorInfo() const
+{
+	if (!CurrentActorInfo)
+	{
+		return nullptr;
+	}
+
 	if (CurrentActorInfo->PlayerController.IsValid())
 	{
 		return CurrentActorInfo->PlayerController.Get();
 	}
-	// fallback to using the avatar as a pawn
-	if (const APawn* Pawn = Cast<APawn>(CurrentActorInfo->AvatarActor.Get()))
+
+	// search up the chain of owners for any controller
+	AActor* TestActor = CurrentActorInfo->OwnerActor.Get();
+	while (TestActor)
 	{
-		return Cast<APlayerController>(Pawn->GetController());
+		if (AController* Controller = Cast<AController>(TestActor))
+		{
+			return Controller;
+		}
+
+		if (const APawn* Pawn = Cast<APawn>(TestActor))
+		{
+			return Pawn->GetController();
+		}
+
+		TestActor = TestActor->GetOwner();
 	}
+
 	return nullptr;
+}
+
+APlayerController* UExtendedGameplayAbility::GetPlayerControllerFromActorInfo() const
+{
+	return Cast<APlayerController>(GetControllerFromActorInfo());
 }

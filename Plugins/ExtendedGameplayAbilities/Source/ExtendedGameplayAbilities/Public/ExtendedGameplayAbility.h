@@ -120,6 +120,18 @@ public:
 	UFUNCTION(BlueprintPure, Meta = (HideSelfPin = true, AdvancedDisplay = "1"), Category = "Ability")
 	float GetAbilityStat(FDataRegistryId Id, float DefaultValue = 0.f) const;
 
+	/** Return the avatar as a pawn from the actor info. */
+	UFUNCTION(BlueprintPure, Category = "Ability")
+	APawn* GetPawnFromActorInfo() const;
+
+	/** Return the avatar as a Character from the actor info. */
+	UFUNCTION(BlueprintPure, Category = "Ability")
+	ACharacter* GetCharacterFromActorInfo() const;
+
+	/** Return the controller from the actor info. */
+	UFUNCTION(BlueprintPure, Category = "Ability")
+	AController* GetControllerFromActorInfo() const;
+
 	/** Return the player controller from the actor info. */
 	UFUNCTION(BlueprintPure, Category = "Ability")
 	APlayerController* GetPlayerControllerFromActorInfo() const;
