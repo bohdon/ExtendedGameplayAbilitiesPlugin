@@ -75,13 +75,22 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CommonAbilities|Health")
 	void SetAbilitySystem(UAbilitySystemComponent* InAbilitySystem);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHealthStateChangedDelegate, AActor*, OwningActor);
+	DECLARE_MULTICAST_DELEGATE_OneParam(FHealthStateChangedDelegate, AActor* /*OwningActor*/);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHealthStateChangedDynDelegate, AActor*, OwningActor);
 
+	/** Called the moment the character has died. */
+	FHealthStateChangedDelegate OnDeathStartedEvent;
+
+	/** Called the moment the character has died. */
 	UPROPERTY(BlueprintAssignable, DisplayName = "OnDeathStartedEvent")
-	FHealthStateChangedDelegate OnDeathStartedEvent_BP;
+	FHealthStateChangedDynDelegate OnDeathStartedEvent_BP;
 
+	/** Called after playing any death animation or fx. */
+	FHealthStateChangedDelegate OnDeathFinishedEvent;
+
+	/** Called after playing any death animation or fx. */
 	UPROPERTY(BlueprintAssignable, DisplayName = "OnDeathFinishedEvent")
-	FHealthStateChangedDelegate OnDeathFinishedEvent_BP;
+	FHealthStateChangedDynDelegate OnDeathFinishedEvent_BP;
 
 protected:
 	/** Ability system being monitored. */

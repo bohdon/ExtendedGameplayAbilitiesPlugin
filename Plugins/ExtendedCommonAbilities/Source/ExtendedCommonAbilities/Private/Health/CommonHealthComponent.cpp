@@ -107,6 +107,7 @@ void UCommonHealthComponent::OnDeathStarted()
 	AActor* Owner = GetOwner();
 	Owner->ForceNetUpdate();
 
+	OnDeathStartedEvent.Broadcast(Owner);
 	OnDeathStartedEvent_BP.Broadcast(Owner);
 }
 
@@ -120,6 +121,7 @@ void UCommonHealthComponent::OnDeathFinished()
 	AActor* Owner = GetOwner();
 	Owner->ForceNetUpdate();
 
+	OnDeathFinishedEvent.Broadcast(Owner);
 	OnDeathFinishedEvent_BP.Broadcast(Owner);
 }
 
