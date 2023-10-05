@@ -119,4 +119,8 @@ public:
 	/** Return the value of a curve table at this ability's level. */
 	UFUNCTION(BlueprintPure, Meta = (HideSelfPin = true, AdvancedDisplay = "1"), Category = "Ability")
 	float GetAbilityStat(FDataRegistryId Id, float DefaultValue = 0.f) const;
+
+	/** Return the player controller from the actor info. */
+	UFUNCTION(BlueprintPure, Category = "Ability")
+	APlayerController* GetPlayerControllerFromActorInfo() const;
 };

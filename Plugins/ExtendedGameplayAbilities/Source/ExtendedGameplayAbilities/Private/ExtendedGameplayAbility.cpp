@@ -184,3 +184,18 @@ float UExtendedGameplayAbility::GetAbilityStat(FDataRegistryId Id, float Default
 	const float InputValue = static_cast<float>(GetAbilityLevel());
 	return UExtendedAbilitySystemStatics::GetDataRegistryValue(Id, InputValue, DefaultValue);
 }
+
+APlayerController* UExtendedGameplayAbility::GetPlayerControllerFromActorInfo() const
+{
+	// check if already set in actor info
+	if (CurrentActorInfo->PlayerController.IsValid())
+	{
+		return CurrentActorInfo->PlayerController.Get();
+	}
+	// fallback to using the avatar as a pawn
+	if (const APawn* Pawn = Cast<APawn>(CurrentActorInfo->AvatarActor.Get()))
+	{
+		return Cast<APlayerController>(Pawn->GetController());
+	}
+	return nullptr;
+}
