@@ -12,6 +12,7 @@ class UAbilitySystemComponent;
 
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Death);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Death_SelfDestruct);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Death_Dying);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Death_Dead);
 
@@ -56,6 +57,14 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "CommonAbilities|Health")
 	bool IsAlive() const { return HealthState <= ECommonHealthState::Alive; }
+
+	/** Trigger death from self destruction. */
+	UFUNCTION(BlueprintCallable, Category = "CommonAbilities|Health")
+	void TriggerDeathFromSelfDestruct();
+
+	/** Trigger death for custom reasons. */
+	UFUNCTION(BlueprintCallable, Meta = (GameplayTagFilter = "Event.Death"), Category = "CommonAbilities|Health")
+	void TriggerDeath(AActor* Instigator, FGameplayEffectContextHandle Context, FGameplayTag DeathEventTag);
 
 	/**
 	 * Begin dying, called automatically when HP is depleted.

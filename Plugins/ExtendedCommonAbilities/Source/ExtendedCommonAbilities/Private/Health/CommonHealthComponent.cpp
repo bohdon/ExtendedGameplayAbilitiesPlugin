@@ -5,12 +5,14 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "AbilitySystemLog.h"
 #include "GameplayEffectExtension.h"
 #include "NativeGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death, "Event.Death");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death_SelfDestruct, "Event.Death.SelfDestruct");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Death_Dying, "State.Death.Dying");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Death_Dead, "State.Death.Dead");
 
@@ -77,6 +79,31 @@ void UCommonHealthComponent::SetAbilitySystem(UAbilitySystemComponent* InAbility
 			AbilitySystem->GetGameplayAttributeValueChangeDelegate(HealthAttribute).AddUObject(this, &UCommonHealthComponent::OnHPChanged);
 		}
 	}
+}
+
+void UCommonHealthComponent::TriggerDeathFromSelfDestruct()
+{
+	TriggerDeath(GetOwner(), FGameplayEffectContextHandle(), TAG_Event_Death_SelfDestruct);
+}
+
+void UCommonHealthComponent::TriggerDeath(AActor* Instigator, FGameplayEffectContextHandle Context, FGameplayTag DeathEventTag)
+{
+	if (!DeathEventTag.MatchesTag(TAG_Event_Death))
+	{
+		UE_LOG(LogAbilitySystem, Error, TEXT("DeathEventTag must be Event.Death or a child tag."));
+		return;
+	}
+
+	// send Event.Death to trigger death ability which calls StartDeath and FinishDeath
+	FGameplayEventData Payload;
+	Payload.Target = AbilitySystem->GetAvatarActor();
+	Payload.EventTag = DeathEventTag;
+	Payload.Instigator = Instigator;
+	Payload.ContextHandle = Context;
+	AbilitySystem->GetOwnedGameplayTags(Payload.TargetTags);
+
+	FScopedPredictionWindow NewScopedWindow(AbilitySystem, true);
+	AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
 }
 
 void UCommonHealthComponent::StartDeath()
@@ -154,7 +181,7 @@ void UCommonHealthComponent::OnHPChanged(const FOnAttributeChangeData& ChangeDat
 	if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
 	{
 		{
-			// trigger death ability, which should handle calling StartDeath and FinishDeath
+			// send Event.Death to trigger death ability which calls StartDeath and FinishDeath
 			FGameplayEventData Payload;
 			Payload.Target = AbilitySystem->GetAvatarActor();
 			Payload.EventTag = TAG_Event_Death;
