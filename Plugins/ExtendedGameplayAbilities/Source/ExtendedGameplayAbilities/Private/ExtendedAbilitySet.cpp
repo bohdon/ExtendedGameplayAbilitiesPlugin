@@ -112,7 +112,7 @@ FExtendedAbilitySetHandles UExtendedAbilitySet::GiveToAbilitySystem(UAbilitySyst
 	return Result;
 }
 
-void UExtendedAbilitySet::RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem, FExtendedAbilitySetHandles AbilitySetHandles)
+void UExtendedAbilitySet::RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem, FExtendedAbilitySetHandles& AbilitySetHandles)
 {
 	check(AbilitySystem);
 

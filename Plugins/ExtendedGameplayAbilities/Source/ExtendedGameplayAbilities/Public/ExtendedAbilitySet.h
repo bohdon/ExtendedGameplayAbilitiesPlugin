@@ -135,7 +135,7 @@ public:
 	                                                       int32 OverrideLevel = -1) const;
 
 	static void RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem,
-	                                    FExtendedAbilitySetHandles AbilitySetHandles);
+	                                    FExtendedAbilitySetHandles& AbilitySetHandles);
 
 protected:
 	/** Create and return a new ability spec to add to the ability system. */
