@@ -41,8 +41,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ability|GamePhases")
 	void StartPhase(TSubclassOf<UGamePhaseAbility> PhaseAbility);
 
+	/** Return true if a phase is currently active. */
 	UFUNCTION(BlueprintPure, Meta = (Categories = "GamePhase"), Category = "Ability|GamePhases")
 	bool IsPhaseActive(FGameplayTag PhaseTag);
+
+	/** Return true if any of the phases are active. */
+	UFUNCTION(BlueprintPure, Meta = (Categories = "GamePhase"), Category = "Ability|GamePhases")
+	bool IsAnyPhaseActive(FGameplayTagContainer PhaseTags);
 
 	virtual void OnBeginPhase(const UGamePhaseAbility* Ability, const FGameplayAbilitySpecHandle AbilityHandle);
 

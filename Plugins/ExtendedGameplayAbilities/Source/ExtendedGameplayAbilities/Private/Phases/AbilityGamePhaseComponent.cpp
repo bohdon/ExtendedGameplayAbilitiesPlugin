@@ -62,6 +62,19 @@ bool UAbilityGamePhaseComponent::IsPhaseActive(FGameplayTag PhaseTag)
 	return false;
 }
 
+bool UAbilityGamePhaseComponent::IsAnyPhaseActive(FGameplayTagContainer PhaseTags)
+{
+	for (auto& Elem : ActivePhases)
+	{
+		const FActiveGamePhaseEntry& Entry = Elem.Value;
+		if (Entry.PhaseTag.MatchesAny(PhaseTags))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void UAbilityGamePhaseComponent::OnBeginPhase(const UGamePhaseAbility* Ability, const FGameplayAbilitySpecHandle AbilityHandle)
 {
 	const FGameplayTag NewPhaseTag = Ability->PhaseTag;
