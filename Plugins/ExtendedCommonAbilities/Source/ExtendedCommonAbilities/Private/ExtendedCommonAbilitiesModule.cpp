@@ -2,6 +2,10 @@
 
 #include "ExtendedCommonAbilitiesModule.h"
 
+
+DEFINE_LOG_CATEGORY(LogCommonAbilities);
+
+
 #define LOCTEXT_NAMESPACE "FExtendedCommonAbilitiesModule"
 
 

@@ -15,6 +15,8 @@ public class ExtendedCommonAbilities : ModuleRules
 			"ExtendedGameplayAbilities",
 			"GameplayAbilities",
 			"GameplayTags",
+			"ModularGameplay",
+			"ModularGameplayActors",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
