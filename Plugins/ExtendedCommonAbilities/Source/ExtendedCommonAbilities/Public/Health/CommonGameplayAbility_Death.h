@@ -48,4 +48,12 @@ public:
 
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	                        const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+
+protected:
+	/**
+	 * The health component on which death was started. It's possible that the avatar may change
+	 * before end ability is called, in which case we want to call FinishDeath on the same health component that was started.
+	 */
+	UPROPERTY()
+	TWeakObjectPtr<UCommonHealthComponent> HealthComponent;
 };

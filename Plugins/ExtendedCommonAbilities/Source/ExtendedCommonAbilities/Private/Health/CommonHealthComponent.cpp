@@ -81,6 +81,11 @@ void UCommonHealthComponent::SetAbilitySystem(UAbilitySystemComponent* InAbility
 	}
 }
 
+void UCommonHealthComponent::ClearAbilitySystem()
+{
+	SetAbilitySystem(nullptr);
+}
+
 void UCommonHealthComponent::TriggerDeathFromSelfDestruct()
 {
 	TriggerDeath(GetOwner(), FGameplayEffectContextHandle(), TAG_Event_Death_SelfDestruct);

@@ -14,7 +14,9 @@ UCommonGameplayAbility_Death::UCommonGameplayAbility_Death(const FObjectInitiali
 	: Super(ObjectInitializer),
 	  bStartDeathOnActivate(true)
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	// it's possible that a character may die before the previous character finishes dying in some games,
+	// ensure that each pawn fully finishes their dying process.
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
 	bServerRespectsRemoteAbilityCancellation = false;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 
@@ -30,7 +32,8 @@ UCommonGameplayAbility_Death::UCommonGameplayAbility_Death(const FObjectInitiali
 
 void UCommonGameplayAbility_Death::StartDeath()
 {
-	if (UCommonHealthComponent* HealthComponent = GetHealthComponent())
+	HealthComponent = GetHealthComponent();
+	if (HealthComponent.IsValid())
 	{
 		HealthComponent->StartDeath();
 	}
@@ -38,7 +41,7 @@ void UCommonGameplayAbility_Death::StartDeath()
 
 void UCommonGameplayAbility_Death::FinishDeath()
 {
-	if (UCommonHealthComponent* HealthComponent = GetHealthComponent())
+	if (HealthComponent.IsValid())
 	{
 		HealthComponent->FinishDeath();
 	}

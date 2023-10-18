@@ -84,6 +84,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CommonAbilities|Health")
 	void SetAbilitySystem(UAbilitySystemComponent* InAbilitySystem);
 
+	/** Clear the ability system from this component and clear its death tags. */
+	UFUNCTION(BlueprintCallable, Category = "CommonAbilities|Health")
+	void ClearAbilitySystem();
+
 	DECLARE_MULTICAST_DELEGATE_OneParam(FHealthStateChangedDelegate, AActor* /*OwningActor*/);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHealthStateChangedDynDelegate, AActor*, OwningActor);
 
