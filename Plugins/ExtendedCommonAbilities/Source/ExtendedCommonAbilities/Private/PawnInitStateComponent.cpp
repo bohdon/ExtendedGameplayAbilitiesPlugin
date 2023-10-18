@@ -143,7 +143,7 @@ void UPawnInitStateComponent::OnAnyPawnControllerChanged(APawn* Pawn, AControlle
 	}
 }
 
-UPawnInitStateComponent* UPawnInitStateComponent::FindPawnInitStateComponent(const AActor* Actor)
+UPawnInitStateComponent* UPawnInitStateComponent::GetPawnInitStateComponent(const AActor* Actor)
 {
 	return Actor ? Actor->FindComponentByClass<UPawnInitStateComponent>() : nullptr;
 }

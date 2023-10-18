@@ -37,7 +37,7 @@ public:
 	 * If Pawns may exist and be used without a controller set this to false, this won't
 	 * prevent locally controlled pawns from waiting for their controller.
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|InitState")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InitState")
 	bool bWaitForController;
 
 	/** The name of this actor feature. */
@@ -69,6 +69,6 @@ protected:
 
 public:
 	/** Return the pawn init state component from an actor. */
-	UFUNCTION(BlueprintPure, Category = "Pawn|InitState")
-	static UPawnInitStateComponent* FindPawnInitStateComponent(const AActor* Actor);
+	UFUNCTION(BlueprintPure, Category = "InitState|Pawn")
+	static UPawnInitStateComponent* GetPawnInitStateComponent(const AActor* Actor);
 };
