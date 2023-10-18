@@ -91,6 +91,10 @@ public:
 
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
+	/** Called when the avatar of the owning ability system has been set. */
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnAvatarSet", Category = "Ability")
+	void OnAvatarSet_BP();
+
 	/** Return an effect set from the EffectSetMap by tag. */
 	UFUNCTION(BlueprintPure, Category = "Ability|GameplayEffect")
 	FGameplayEffectSet GetEffectSet(FGameplayTag Tag) const;

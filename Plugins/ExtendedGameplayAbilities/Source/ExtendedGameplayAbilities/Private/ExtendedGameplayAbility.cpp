@@ -99,6 +99,8 @@ void UExtendedGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* Acto
 	{
 		ActorInfo->AbilitySystemComponent->TryActivateAbility(Spec.Handle, false);
 	}
+
+	OnAvatarSet_BP();
 }
 
 FGameplayEffectSet UExtendedGameplayAbility::GetEffectSet(FGameplayTag Tag) const
