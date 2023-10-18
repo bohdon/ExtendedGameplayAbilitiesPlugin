@@ -8,6 +8,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ExtendedAbilitySystemStatics.generated.h"
 
+class UAbilityGamePhaseComponent;
 class UExtendedAbilitySystemComponent;
 
 
@@ -93,4 +94,8 @@ public:
 	 */
 	UFUNCTION(BlueprintPure, Meta = (AdvancedDisplay = "2"))
 	static float GetDataRegistryValue(FDataRegistryId Id, float InputValue = 0.f, float DefaultValue = 0.f);
+
+	/** Return the UAbilityGamePhaseComponent from the game state. */
+	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject"), Category = "Ability|GamePhases")
+	static UAbilityGamePhaseComponent* GetAbilityGamePhaseComponent(const UObject* WorldContextObject);
 };

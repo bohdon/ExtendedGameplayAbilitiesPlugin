@@ -6,6 +6,8 @@
 #include "AbilitySystemGlobals.h"
 #include "DataRegistrySubsystem.h"
 #include "ExtendedAbilitySystemComponent.h"
+#include "GameFramework/GameStateBase.h"
+#include "Phases/AbilityGamePhaseComponent.h"
 
 
 UExtendedAbilitySystemComponent* UExtendedAbilitySystemStatics::GetExtendedAbilitySystemComponent(AActor* Actor)
@@ -127,4 +129,16 @@ float UExtendedAbilitySystemStatics::GetDataRegistryValue(FDataRegistryId Id, fl
 	}
 
 	return DefaultValue;
+}
+
+UAbilityGamePhaseComponent* UExtendedAbilitySystemStatics::GetAbilityGamePhaseComponent(const UObject* WorldContextObject)
+{
+	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		if (const AGameStateBase* GameState = World->GetGameState())
+		{
+			return GameState->FindComponentByClass<UAbilityGamePhaseComponent>();
+		}
+	}
+	return nullptr;
 }
