@@ -11,6 +11,7 @@
 class UAbilitySystemComponent;
 
 
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayMessage_Death);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Death);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Death_SelfDestruct);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Death_Dying);
@@ -37,16 +38,24 @@ class EXTENDEDCOMMONABILITIES_API UCommonHealthComponent : public UActorComponen
 public:
 	UCommonHealthComponent(const FObjectInitializer& ObjectInitializer);
 
-	/** Automatically set the ability system by retrieving it from the owning actor. */
-	UPROPERTY(EditDefaultsOnly, Category = "Health")
-	bool bAutoRegisterAbilitySystem;
-
 	/**
 	 * The attribute that represents the character's main health.
 	 * The gameplay event 'Event.Death' is sent when this reaches 0.
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
 	FGameplayAttribute HealthAttribute;
+
+	/** Automatically set the ability system by retrieving it from the owning actor. */
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
+	bool bAutoRegisterAbilitySystem;
+
+	/** Send a message through the UGameplayMessageSubsystem on death. */
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
+	bool bSendGameplayMessage;
+
+	/** The channel on which to send the death message via the UGameplayMessageSubsystem. */
+	UPROPERTY(EditDefaultsOnly, Meta = (EditCondition = "bSendGameplayMessage"), Category = "Health")
+	FGameplayTag GameplayMessageChannel;
 
 	/** The current state of health. */
 	UPROPERTY(VisibleAnywhere, Replicated, ReplicatedUsing=OnRep_HealthState, Category = "Health")

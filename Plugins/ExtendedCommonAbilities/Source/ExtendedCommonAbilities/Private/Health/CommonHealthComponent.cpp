@@ -8,9 +8,11 @@
 #include "AbilitySystemLog.h"
 #include "GameplayEffectExtension.h"
 #include "NativeGameplayTags.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Net/UnrealNetwork.h"
 
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayMessage_Death, "GameplayMessage.Death");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death, "Event.Death");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death_SelfDestruct, "Event.Death.SelfDestruct");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Death_Dying, "State.Death.Dying");
@@ -20,6 +22,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Death_Dead, "State.Death.Dead");
 UCommonHealthComponent::UCommonHealthComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
 	  bAutoRegisterAbilitySystem(true),
+	  bSendGameplayMessage(true),
+	  GameplayMessageChannel(TAG_GameplayMessage_Death),
 	  HealthState(ECommonHealthState::Alive),
 	  AbilitySystem(nullptr)
 {
@@ -93,22 +97,38 @@ void UCommonHealthComponent::TriggerDeathFromSelfDestruct()
 
 void UCommonHealthComponent::TriggerDeath(AActor* Instigator, FGameplayEffectContextHandle Context, FGameplayTag DeathEventTag)
 {
+#if WITH_SERVER_CODE
 	if (!DeathEventTag.MatchesTag(TAG_Event_Death))
 	{
 		UE_LOG(LogAbilitySystem, Error, TEXT("DeathEventTag must be Event.Death or a child tag."));
 		return;
 	}
 
-	// send Event.Death to trigger death ability which calls StartDeath and FinishDeath
-	FGameplayEventData Payload;
-	Payload.Target = AbilitySystem->GetAvatarActor();
-	Payload.EventTag = DeathEventTag;
-	Payload.Instigator = Instigator;
-	Payload.ContextHandle = Context;
-	AbilitySystem->GetOwnedGameplayTags(Payload.TargetTags);
+	FGameplayEventData EventData;
+	EventData.Target = AbilitySystem->GetAvatarActor();
+	EventData.EventTag = DeathEventTag;
+	EventData.Instigator = Instigator;
+	EventData.ContextHandle = Context;
+	AbilitySystem->GetOwnedGameplayTags(EventData.TargetTags);
 
-	FScopedPredictionWindow NewScopedWindow(AbilitySystem, true);
-	AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
+	{
+		// send Event.Death to trigger death ability which calls StartDeath and FinishDeath
+		const FGameplayEventData Payload = EventData;
+
+		FScopedPredictionWindow NewScopedWindow(AbilitySystem, true);
+		AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
+	}
+
+	if (bSendGameplayMessage)
+	{
+		// broadcast event to everyone
+		FGameplayEventData Message = EventData;
+		Message.EventTag = GameplayMessageChannel;
+
+		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+		MessageSubsystem.BroadcastMessage(Message.EventTag, Message);
+	}
+#endif // WITH_SERVER_CODE
 }
 
 void UCommonHealthComponent::StartDeath()
@@ -185,24 +205,36 @@ void UCommonHealthComponent::OnHPChanged(const FOnAttributeChangeData& ChangeDat
 #if WITH_SERVER_CODE
 	if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
 	{
+		FGameplayEventData EventData;
+		EventData.Target = AbilitySystem->GetAvatarActor();
+		EventData.EventTag = TAG_Event_Death;
+		if (ChangeData.GEModData)
+		{
+			EventData.ContextHandle = ChangeData.GEModData->EffectSpec.GetEffectContext();
+			EventData.Instigator = EventData.ContextHandle.GetOriginalInstigator();
+			EventData.OptionalObject = ChangeData.GEModData->EffectSpec.Def;
+			EventData.InstigatorTags = *ChangeData.GEModData->EffectSpec.CapturedSourceTags.GetAggregatedTags();
+			EventData.TargetTags = *ChangeData.GEModData->EffectSpec.CapturedTargetTags.GetAggregatedTags();
+			EventData.EventMagnitude = ChangeData.GEModData->EvaluatedData.Magnitude;
+		}
+
 		{
 			// send Event.Death to trigger death ability which calls StartDeath and FinishDeath
-			FGameplayEventData Payload;
-			Payload.Target = AbilitySystem->GetAvatarActor();
-			Payload.EventTag = TAG_Event_Death;
-			if (ChangeData.GEModData)
-			{
-				Payload.ContextHandle = ChangeData.GEModData->EffectSpec.GetEffectContext();
-				Payload.Instigator = Payload.ContextHandle.GetOriginalInstigator();
-				Payload.OptionalObject = ChangeData.GEModData->EffectSpec.Def;
-				Payload.InstigatorTags = *ChangeData.GEModData->EffectSpec.CapturedSourceTags.GetAggregatedTags();
-				Payload.TargetTags = *ChangeData.GEModData->EffectSpec.CapturedTargetTags.GetAggregatedTags();
-				Payload.EventMagnitude = ChangeData.GEModData->EvaluatedData.Magnitude;
-			}
+			const FGameplayEventData Payload = EventData;
 
 			FScopedPredictionWindow NewScopedWindow(AbilitySystem, true);
-			AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
+			AbilitySystem->HandleGameplayEvent(EventData.EventTag, &Payload);
+		}
+
+		if (bSendGameplayMessage)
+		{
+			// broadcast event to everyone
+			FGameplayEventData Message = EventData;
+			Message.EventTag = GameplayMessageChannel;
+
+			UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
+			MessageSubsystem.BroadcastMessage(Message.EventTag, Message);
 		}
 	}
-#endif
+#endif // WITH_SERVER_CODE
 }

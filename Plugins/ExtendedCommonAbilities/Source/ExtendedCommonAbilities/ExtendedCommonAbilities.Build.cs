@@ -14,6 +14,7 @@ public class ExtendedCommonAbilities : ModuleRules
 			"Core",
 			"ExtendedGameplayAbilities",
 			"GameplayAbilities",
+			"GameplayMessageRuntime",
 			"GameplayTags",
 			"ModularGameplay",
 			"ModularGameplayActors",
