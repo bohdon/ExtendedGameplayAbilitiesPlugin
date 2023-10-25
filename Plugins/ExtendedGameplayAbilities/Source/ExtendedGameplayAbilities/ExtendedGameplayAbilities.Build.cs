@@ -15,6 +15,7 @@ public class ExtendedGameplayAbilities : ModuleRules
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",
+			"ModelViewViewModel",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
