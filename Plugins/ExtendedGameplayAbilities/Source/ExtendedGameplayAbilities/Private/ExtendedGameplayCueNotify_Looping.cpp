@@ -7,12 +7,19 @@
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
 #include "AbilitySystemStats.h"
+#include "ExtendedAbilitySystemStatics.h"
 #include "Stats/Stats.h"
 #include "Stats/Stats2.h"
 
 
 AExtendedGameplayCueNotify_Looping::AExtendedGameplayCueNotify_Looping()
 {
+}
+
+TArray<FActiveGameplayEffectHandle> AExtendedGameplayCueNotify_Looping::GetGrantingActiveEffects() const
+{
+	UAbilitySystemComponent* AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwner());
+	return UExtendedAbilitySystemStatics::GetActiveEffectsGrantingGameplayCue(AbilitySystem, GameplayCueTag);
 }
 
 void AExtendedGameplayCueNotify_Looping::HandleGameplayCue(AActor* MyTarget, EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters)

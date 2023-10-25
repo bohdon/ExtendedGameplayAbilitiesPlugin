@@ -18,6 +18,14 @@ class EXTENDEDGAMEPLAYABILITIES_API AExtendedGameplayCueNotify_Looping : public 
 public:
 	AExtendedGameplayCueNotify_Looping();
 
+	/** Return the gameplay cue tag for this notify actor. */
+	UFUNCTION(BlueprintPure, Category = "GameplayCueNotify")
+	FGameplayTag GetGameplayCueTag() const { return GameplayCueTag; }
+
+	/** Return the active effects that grant this gameplay cue, if any. */
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "GameplayCueNotify")
+	TArray<FActiveGameplayEffectHandle> GetGrantingActiveEffects() const;
+
 	virtual void HandleGameplayCue(AActor* MyTarget, EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters) override;
 	virtual bool WhileActive_Implementation(AActor* MyTarget, const FGameplayCueParameters& Parameters) override;
 };

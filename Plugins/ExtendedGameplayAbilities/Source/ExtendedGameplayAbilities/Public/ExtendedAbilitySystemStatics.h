@@ -73,6 +73,10 @@ public:
 	static int32 RemoveEffectsFromActorBySourceObject(AActor* Actor, const UObject* SourceObject,
 	                                                  UPARAM(Ref) TArray<AActor*>& AffectedActors);
 
+	/** Return all active effects that are responsible for adding a gameplay cue. */
+	UFUNCTION(BlueprintCallable, Category = "Ability|GameplayEffect")
+	static TArray<FActiveGameplayEffectHandle> GetActiveEffectsGrantingGameplayCue(UAbilitySystemComponent* AbilitySystem, FGameplayTag GameplayCueTag);
+
 	/**
 	 * Change an attribute proportionally based on the change to another attribute.
 	 * This is useful for example if MaxHP increases or decreases, and you want HP to remain the same % of MaxHP as it was before the change.

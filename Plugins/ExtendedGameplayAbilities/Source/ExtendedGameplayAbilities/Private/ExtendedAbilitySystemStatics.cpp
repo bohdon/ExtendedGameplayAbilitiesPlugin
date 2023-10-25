@@ -92,6 +92,26 @@ int32 UExtendedAbilitySystemStatics::RemoveEffectsFromActorBySourceObject(AActor
 	return 0;
 }
 
+TArray<FActiveGameplayEffectHandle> UExtendedAbilitySystemStatics::GetActiveEffectsGrantingGameplayCue(UAbilitySystemComponent* AbilitySystem,
+                                                                                                       FGameplayTag GameplayCueTag)
+{
+	if (!AbilitySystem)
+	{
+		return TArray<FActiveGameplayEffectHandle>();
+	}
+
+	FGameplayEffectQuery Query;
+	Query.CustomMatchDelegate = FActiveGameplayEffectQueryCustomMatch::CreateLambda([&GameplayCueTag](const FActiveGameplayEffect& ActiveEffect)
+	{
+		return ActiveEffect.Spec.Def->GameplayCues.ContainsByPredicate([&GameplayCueTag](const FGameplayEffectCue& EffectCue)
+		{
+			return EffectCue.GameplayCueTags.HasTag(GameplayCueTag);
+		});
+	});
+
+	return AbilitySystem->GetActiveEffects(Query);
+}
+
 void UExtendedAbilitySystemStatics::AdjustProportionalAttribute(UAbilitySystemComponent* AbilitySystem, const FGameplayAttribute& Attribute,
                                                                 float OldRelatedValue, float NewRelatedValue, bool bRound, bool bClamp)
 {
