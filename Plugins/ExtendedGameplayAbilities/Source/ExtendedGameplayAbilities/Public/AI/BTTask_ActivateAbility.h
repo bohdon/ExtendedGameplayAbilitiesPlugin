@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BTTask_AbilityBase.h"
 #include "GameplayAbilitySpec.h"
 #include "Abilities/GameplayAbilityTypes.h"
-#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 #include "BTTask_ActivateAbility.generated.h"
 
 class UAbilitySystemComponent;
@@ -16,7 +16,7 @@ class UGameplayAbility;
  * Activate a gameplay ability and optionally wait for it to end.
  */
 UCLASS()
-class EXTENDEDGAMEPLAYABILITIES_API UBTTask_ActivateAbility : public UBTTask_BlackboardBase
+class EXTENDEDGAMEPLAYABILITIES_API UBTTask_ActivateAbility : public UBTTask_AbilityBase
 {
 	GENERATED_BODY()
 
@@ -54,9 +54,6 @@ protected:
 
 	UPROPERTY()
 	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystemPtr;
-
-	/** Return the ability system component from an object. */
-	virtual UAbilitySystemComponent* GetAbilitySystemComponentFromObject(UObject* Object) const;
 
 	virtual FGameplayAbilitySpec* GetTargetAbilitySpec(const UAbilitySystemComponent& AbilitySystem) const;
 

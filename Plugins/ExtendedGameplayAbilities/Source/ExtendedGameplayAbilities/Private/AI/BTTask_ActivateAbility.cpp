@@ -4,10 +4,7 @@
 #include "AI/BTTask_ActivateAbility.h"
 
 #include "AbilitySystemComponent.h"
-#include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 
 UBTTask_ActivateAbility::UBTTask_ActivateAbility(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
@@ -23,19 +20,10 @@ UBTTask_ActivateAbility::UBTTask_ActivateAbility(const FObjectInitializer& Objec
 EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	// get ability system
-	const UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
-	if (BlackboardKey.SelectedKeyType != UBlackboardKeyType_Object::StaticClass())
-	{
-		UE_VLOG(OwnerComp.GetOwner(), LogAbilitySystem, Error, TEXT("BlackboardKey type must be set to 'Object'"));
-		return EBTNodeResult::Failed;
-	}
-
-	UObject* KeyObject = Blackboard->GetValue<UBlackboardKeyType_Object>(BlackboardKey.GetSelectedKeyID());
-	UAbilitySystemComponent* AbilitySystem = GetAbilitySystemComponentFromObject(KeyObject);
+	UAbilitySystemComponent* AbilitySystem = GetAbilitySystemComponent(OwnerComp, BlackboardKey);
 	if (!AbilitySystem)
 	{
-		UE_VLOG(OwnerComp.GetOwner(), LogAbilitySystem, Error, TEXT("Could not get ability system from %s"),
-		        *GetNameSafe(KeyObject));
+		UE_VLOG(OwnerComp.GetOwner(), LogAbilitySystem, Error, TEXT("Could not get ability system from %s"), *BlackboardKey.SelectedKeyName.ToString());
 		return EBTNodeResult::Failed;
 	}
 
@@ -102,7 +90,7 @@ FString UBTTask_ActivateAbility::GetStaticDescription() const
 {
 	const FString AbilityDesc = AbilityClass || AbilityTags.IsEmpty()
 		                            ? *GetNameSafe(AbilityClass)
-		                            : FString::Printf(TEXT("with tags %s"), *AbilityTags.ToString());
+		                            : FString::Printf(TEXT("with tags %s"), *AbilityTags.ToStringSimple());
 	const FString ResultDesc = bWaitForAbilityEnd ? TEXT("\nWait for ability end") : TEXT("");
 	// e.g. 'ActivateAbility: MyAbility on SelfActor, wait for ability end'
 	return FString::Printf(TEXT("%s: %s on %s%s"),
@@ -124,19 +112,6 @@ void UBTTask_ActivateAbility::OnAbilityEnded(const FAbilityEndedData& AbilityEnd
 		const EBTNodeResult::Type CancelResult = bFailOnAbilityCancel ? EBTNodeResult::Failed : EBTNodeResult::Succeeded;
 		FinishLatentTask(*OwnerComp, AbilityEndedData.bWasCancelled ? CancelResult : EBTNodeResult::Succeeded);
 	}
-}
-
-UAbilitySystemComponent* UBTTask_ActivateAbility::GetAbilitySystemComponentFromObject(UObject* Object) const
-{
-	if (const AActor* Actor = Cast<AActor>(Object))
-	{
-		return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor);
-	}
-	else if (UAbilitySystemComponent* AbilitySystem = Cast<UAbilitySystemComponent>(Object))
-	{
-		return AbilitySystem;
-	}
-	return nullptr;
 }
 
 FGameplayAbilitySpec* UBTTask_ActivateAbility::GetTargetAbilitySpec(const UAbilitySystemComponent& AbilitySystem) const
