@@ -10,6 +10,7 @@ public class ExtendedGameplayAbilities : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
+			"AIModule",
 			"Core",
 			"DataRegistry",
 			"GameplayAbilities",
