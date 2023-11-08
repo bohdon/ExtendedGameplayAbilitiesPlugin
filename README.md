@@ -21,7 +21,7 @@ Extends the ability system with some important core features for making out of t
 
 ## ExtendedCommonAbilities
 
-Some additional, more specific components for working with ability systems. Comes with pawn base classes for
+Some additional, more specific abilities and classes for working with ability systems. Comes with pawn base classes for
 getting up and running with ability systems painless, as well as some other common action game functionality.
 
 ### Features
