@@ -1,4 +1,4 @@
-# Extended Ability System Plugins
+# Extended Gameplay Abilities Plugins
 
 Three plugins for extending and working with Unreal's builtin Gameplay Abilities.
 
