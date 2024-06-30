@@ -33,7 +33,8 @@ UAbilityGamePhaseComponent* UGamePhaseAbility::GetAbilityGamePhaseComponent(cons
 
 	ensureMsgf(PhaseComponent,
 	           TEXT("UAbilityGamePhaseComponent was not set as the SourceObject of %s, "
-		           "ensure game phase abilities are activated through the game phase component"));
+		           "ensure game phase abilities are activated through the game phase component"),
+	           *GetName());
 
 	return PhaseComponent;
 }
