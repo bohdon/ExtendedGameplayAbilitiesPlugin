@@ -1,6 +1,7 @@
 # Visual Studio user specific files
 .vs/
 .vscode/
+.vsconfig
 
 # Visual Studio database file
 *.VC.db
@@ -44,6 +45,7 @@ ipch/*
 *.xcodeproj
 *.xcworkspace
 *.sln
+*.sln.DotSettings.user
 *.suo
 *.opensdf
 *.sdf
@@ -66,3 +68,5 @@ DerivedDataCache/*
 
 # VS Code Workspace
 *.code-workspace
+
+*.ddargs.json

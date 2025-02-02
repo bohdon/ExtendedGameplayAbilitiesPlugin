@@ -1,0 +1,16 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.5",
+	"Category": "",
+	"Description": "",
+	"Plugins": [
+		{
+			"Name": "ExtendedGameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "ExtendedCommonAbilities",
+			"Enabled": false
+		}
+	]
+}
