@@ -32,23 +32,22 @@ void UAbilitiesInitStateComponent::InitializeAbilitySystem(UAbilitySystemCompone
 	}
 
 	APawn* Pawn = GetPawnChecked<APawn>();
-	const AActor* ExistingAvatar = InAbilitySystem->GetAvatarActor();
+	const APawn* ExistingPawnAvatar = Cast<APawn>(InAbilitySystem->GetAvatarActor());
 
-	UE_LOG(LogCommonAbilities, Verbose, TEXT("InitializeAbilitySystem %s, Owner: %s, Avatar: %s"),
-	       *GetNameSafe(InAbilitySystem), *GetNameSafe(Owner), *GetNameSafe(Pawn));
-
-
-	if (ExistingAvatar && ExistingAvatar != Pawn)
+	if (ExistingPawnAvatar && ExistingPawnAvatar != Pawn)
 	{
-		// cleanup a leftover different pawn, clean it up.
-		// this can happen on clients if their new pawn is possessed before the dead one is removed.
-		ensure(!ExistingAvatar->HasAuthority());
+		// cleanup any leftover different pawn, which can happen
+		// on clients if their new pawn is possessed before the old one is removed.
+		ensure(!ExistingPawnAvatar->HasAuthority());
 
-		if (UAbilitiesInitStateComponent* OtherPawnAbilityComp = ExistingAvatar->FindComponentByClass<UAbilitiesInitStateComponent>())
+		if (UAbilitiesInitStateComponent* OtherPawnAbilityComp = ExistingPawnAvatar->FindComponentByClass<UAbilitiesInitStateComponent>())
 		{
 			OtherPawnAbilityComp->UninitializeAbilitySystem();
 		}
 	}
+
+	UE_LOG(LogCommonAbilities, Verbose, TEXT("InitializeAbilitySystem %s, Owner: %s, Avatar: %s"),
+	       *GetNameSafe(InAbilitySystem), *GetNameSafe(Owner), *GetNameSafe(Pawn));
 
 	AbilitySystem = InAbilitySystem;
 	AbilitySystem->InitAbilityActorInfo(Owner, Pawn);
@@ -149,6 +148,6 @@ void UAbilitiesInitStateComponent::FindAbilitySystemAndOwner(UAbilitySystemCompo
 
 	OutAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OutOwner);
 
-	ensureMsgf(OutAbilitySystem, TEXT("UPawnAbilitiesComponent on %s requires an AbilitySystem on the PlayerState: %s"),
-	           *GetNameSafe(GetOwner()), *GetNameSafe(OutOwner));
+	ensureAlwaysMsgf(OutAbilitySystem, TEXT("%s: no AbilitySystem found on PlayerState: %s"),
+	                 *GetReadableName(), *OutOwner->GetName());
 }
