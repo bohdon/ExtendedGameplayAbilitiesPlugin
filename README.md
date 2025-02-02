@@ -34,6 +34,11 @@ getting up and running with ability systems painless, as well as some other comm
 - `UCommonHealthComponent` and `UCommonGameplayAbility_Death` for handling the lifecycle of a character that can
     die when an attribute (e.g. HP) reaches zero.
 
+### Plugin Dependencies
+
+- [ModularGameplayActors](https://github.com/EpicGames/UnrealEngine/tree/ue5-main/Samples/Games/Lyra/Plugins/ModularGameplayActors) from Lyra \*
+
+_\* These links currently point the ue5-main branch. Switch to a release branch, or use the markeplace to download Lyra for your specific engine release version._
 
 ## GameplayTagInput
 
