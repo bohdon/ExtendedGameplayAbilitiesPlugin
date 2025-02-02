@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "Components/SkeletalMeshComponent.h"
 
 
 UAnimNotifyState_GameplayTag::UAnimNotifyState_GameplayTag()

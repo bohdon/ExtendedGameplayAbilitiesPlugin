@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "ExtendedCommonAbilitiesModule.h"
+#include "GameFramework/Controller.h"
 #include "GameFramework/PlayerState.h"
 
 

@@ -9,6 +9,7 @@
 #include "ExtendedAbilitySystemStatics.h"
 #include "ExtendedGameplayAbilitiesSettings.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/PlayerController.h"
 
 
 UExtendedGameplayAbility::UExtendedGameplayAbility(const FObjectInitializer& ObjectInitializer)

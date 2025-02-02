@@ -8,6 +8,8 @@
 #include "AbilitySystemLog.h"
 #include "AbilitySystemStats.h"
 #include "ExtendedAbilitySystemStatics.h"
+#include "TimerManager.h"
+#include "Engine/World.h"
 #include "Stats/Stats.h"
 #include "Stats/Stats2.h"
 

@@ -6,6 +6,7 @@
 #include "AbilitySystemGlobals.h"
 #include "DataRegistrySubsystem.h"
 #include "ExtendedAbilitySystemComponent.h"
+#include "Engine/Engine.h"
 #include "GameFramework/GameStateBase.h"
 #include "Phases/AbilityGamePhaseComponent.h"
 

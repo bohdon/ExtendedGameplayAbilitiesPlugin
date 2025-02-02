@@ -6,6 +6,8 @@
 #include "ExtendedCommonAbilitiesModule.h"
 #include "Components/GameFrameworkComponentManager.h"
 #include "Components/GameFrameworkInitStateInterface.h"
+#include "Engine/GameInstance.h"
+#include "GameFramework/Actor.h"
 
 
 UAsyncAction_WaitForInitState* UAsyncAction_WaitForInitState::WaitForInitState(UObject* Object, FGameplayTag RequiredState, bool bOnlyTriggerOnce)

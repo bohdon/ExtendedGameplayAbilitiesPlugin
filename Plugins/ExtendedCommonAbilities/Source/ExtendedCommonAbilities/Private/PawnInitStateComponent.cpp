@@ -5,6 +5,8 @@
 
 #include "NativeGameplayTags.h"
 #include "Components/GameFrameworkComponentManager.h"
+#include "Engine/GameInstance.h"
+#include "GameFramework/Controller.h"
 
 
 UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_InitState_Spawned, "InitState.Spawned",
