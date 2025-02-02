@@ -1,9 +1,9 @@
 ﻿// Copyright Bohdon Sayre, All Rights Reserved.
 
 
-#include "GameplayTagInputConfig.h"
+#include "Input/GameplayTagInputConfig.h"
 
-#include "GameplayTagInputModule.h"
+#include "AbilitySystemLog.h"
 
 
 UGameplayTagInputConfig::UGameplayTagInputConfig(const FObjectInitializer& ObjectInitializer)
@@ -21,7 +21,7 @@ const UInputAction* UGameplayTagInputConfig::FindInputActionByTag(const FGamepla
 		}
 	}
 
-	UE_LOG(LogGameplayTagInput, Error, TEXT("%s - No input action mapped to tag: %s"), *GetName(), *InputTag.ToString());
+	UE_LOG(LogAbilitySystem, Error, TEXT("%s - No input action mapped to tag: %s"), *GetName(), *InputTag.ToString());
 
 	return nullptr;
 }

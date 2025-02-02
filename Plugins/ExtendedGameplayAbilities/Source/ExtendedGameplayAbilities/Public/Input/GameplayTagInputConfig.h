@@ -30,7 +30,7 @@ struct FGameplayTagInputAction
  * Defines mappings between enhanced input actions and gameplay tags.
  */
 UCLASS(BlueprintType, Const)
-class GAMEPLAYTAGINPUT_API UGameplayTagInputConfig : public UDataAsset
+class EXTENDEDGAMEPLAYABILITIES_API UGameplayTagInputConfig : public UDataAsset
 {
 	GENERATED_BODY()
 

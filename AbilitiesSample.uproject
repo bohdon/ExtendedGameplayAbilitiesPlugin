@@ -3,6 +3,13 @@
 	"EngineAssociation": "5.5",
 	"Category": "",
 	"Description": "",
+	"Modules": [
+		{
+			"Name": "AbilitiesSample",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
 	"Plugins": [
 		{
 			"Name": "ExtendedGameplayAbilities",
@@ -10,10 +17,6 @@
 		},
 		{
 			"Name": "ExtendedCommonAbilities",
-			"Enabled": true
-		},
-		{
-			"Name": "GameplayTagInput",
 			"Enabled": true
 		}
 	]

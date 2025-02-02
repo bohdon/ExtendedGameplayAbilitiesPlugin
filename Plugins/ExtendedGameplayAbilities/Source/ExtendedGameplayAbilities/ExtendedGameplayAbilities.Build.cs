@@ -13,6 +13,7 @@ public class ExtendedGameplayAbilities : ModuleRules
 			"AIModule",
 			"Core",
 			"DataRegistry",
+			"EnhancedInput",
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",
