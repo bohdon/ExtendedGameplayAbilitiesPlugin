@@ -160,7 +160,7 @@ FGameplayAbilitySpec UExtendedAbilitySet::CreateAbilitySpec(const FExtendedAbili
 
 	FGameplayAbilitySpec AbilitySpec(AbilityCDO, OverrideLevel >= 0 ? OverrideLevel : AbilityToGrant.Level);
 	AbilitySpec.SourceObject = SourceObject;
-	AbilitySpec.DynamicAbilityTags.AddTag(AbilityToGrant.InputTag);
+	AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityToGrant.InputTag);
 
 	return AbilitySpec;
 }
