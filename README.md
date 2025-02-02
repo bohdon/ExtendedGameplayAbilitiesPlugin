@@ -36,6 +36,7 @@ getting up and running with ability systems painless, as well as some other comm
 
 ### Plugin Dependencies
 
+- [GameplayMessageRouter](https://github.com/EpicGames/UnrealEngine/tree/ue5-main/Samples/Games/Lyra/Plugins/GameplayMessageRouter) from Lyra \*
 - [ModularGameplayActors](https://github.com/EpicGames/UnrealEngine/tree/ue5-main/Samples/Games/Lyra/Plugins/ModularGameplayActors) from Lyra \*
 
 _\* These links currently point the ue5-main branch. Switch to a release branch, or use the markeplace to download Lyra for your specific engine release version._
