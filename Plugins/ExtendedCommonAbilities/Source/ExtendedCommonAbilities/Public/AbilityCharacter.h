@@ -7,9 +7,11 @@
 #include "AbilitySystemInterface.h"
 #include "GameplayTagAssetInterface.h"
 #include "InitStateCharacter.h"
+#include "InputAction.h"
 #include "AbilityCharacter.generated.h"
 
 class UAbilitiesInitStateComponent;
+class UGameplayTagInputConfig;
 
 
 /**
@@ -26,6 +28,19 @@ class EXTENDEDCOMMONABILITIES_API AAbilityCharacter : public AInitStateCharacter
 
 public:
 	AAbilityCharacter(const FObjectInitializer& ObjectInitializer);
+
+	/**
+	 * Default set of ability input configs used to map input actions to gameplay tags.
+	 * InputAbilityTagPressed/Released will be called based on the matching input actions.
+	 */
+	UPROPERTY(EditAnywhere, Category = "Abilities")
+	TArray<TObjectPtr<UGameplayTagInputConfig>> AbilityInputConfigs;
+
+	/** All movement-based ability input tags, so they can be ignored when movement input is disabled. */
+	UPROPERTY(EditAnywhere, Category = "Abilities")
+	FGameplayTagContainer MovementAbilityInputTags;
+
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	// IGameplayTagAssetInterface
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
@@ -46,6 +61,12 @@ public:
 
 	UAbilitiesInitStateComponent* GetAbilitiesInitStateComponent() const;
 
+	/**
+	 * Bind to input Triggered events to press ability input by tag.
+	 * Checks if this is the first Triggered event and calls InputAbilityTagPressed if so.
+	 */
+	virtual void InputAbilityTagTriggered(const FInputActionInstance& InputActionInstance, FGameplayTag InputTag);
+
 	/** Bind to input events to press ability input by tag. */
 	virtual void InputAbilityTagPressed(FGameplayTag InputTag);
 
@@ -53,6 +74,9 @@ public:
 	virtual void InputAbilityTagReleased(FGameplayTag InputTag);
 
 protected:
+	/** Used to detect the first time an input tag action is triggered. */
+	TArray<FGameplayTag> TriggeredInputTags;
+
 	virtual void BeginPlay() override;
 
 	virtual void OnInitializeAbilitySystem();

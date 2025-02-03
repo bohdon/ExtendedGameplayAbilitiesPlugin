@@ -4,12 +4,44 @@
 #include "AbilityCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "EnhancedInputComponent.h"
 #include "ExtendedAbilitySystemComponent.h"
+#include "ExtendedCommonAbilitiesModule.h"
+#include "Input/GameplayTagInputConfig.h"
 
 
 AAbilityCharacter::AAbilityCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass(AInitStateCharacter::InitStateComponentName, UAbilitiesInitStateComponent::StaticClass()))
 {
+}
+
+void AAbilityCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		for (const UGameplayTagInputConfig* AbilityInputConfig : AbilityInputConfigs)
+		{
+			if (!AbilityInputConfig)
+			{
+				continue;
+			}
+
+			for (const FGameplayTagInputAction& InputAction : AbilityInputConfig->InputActions)
+			{
+				if (!InputAction.InputAction)
+				{
+					continue;
+				}
+
+				EnhancedInput->BindAction(InputAction.InputAction, ETriggerEvent::Triggered,
+				                          this, &AAbilityCharacter::InputAbilityTagTriggered, InputAction.InputTag);
+				EnhancedInput->BindAction(InputAction.InputAction, ETriggerEvent::Completed,
+				                          this, &AAbilityCharacter::InputAbilityTagReleased, InputAction.InputTag);
+			}
+		}
+	}
 }
 
 void AAbilityCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
@@ -57,13 +89,27 @@ UAbilitiesInitStateComponent* AAbilityCharacter::GetAbilitiesInitStateComponent(
 	return Cast<UAbilitiesInitStateComponent>(GetInitStateComponent());
 }
 
+void AAbilityCharacter::InputAbilityTagTriggered(const FInputActionInstance& InputActionInstance, FGameplayTag InputTag)
+{
+	if (!TriggeredInputTags.Contains(InputTag))
+	{
+		TriggeredInputTags.Add(InputTag);
+
+		InputAbilityTagPressed(InputTag);
+	}
+}
+
 void AAbilityCharacter::InputAbilityTagPressed(FGameplayTag InputTag)
 {
-	if (IsMoveInputIgnored())
+	if (IsMoveInputIgnored() && InputTag.MatchesAny(MovementAbilityInputTags))
 	{
+		UE_LOG(LogCommonAbilities, Verbose, TEXT("%s: Ignoring movement ability input: %s"),
+		       *GetName(), *InputTag.ToString());
 		return;
 	}
 
+	UE_LOG(LogCommonAbilities, Verbose, TEXT("%s: InputAbilityTagPressed: %s"),
+	       *GetName(), *InputTag.ToString());
 	if (UExtendedAbilitySystemComponent* AbilitySystem = GetAbilitySystemComponent<UExtendedAbilitySystemComponent>())
 	{
 		AbilitySystem->AbilityTagInputPressed(InputTag);
@@ -72,6 +118,10 @@ void AAbilityCharacter::InputAbilityTagPressed(FGameplayTag InputTag)
 
 void AAbilityCharacter::InputAbilityTagReleased(FGameplayTag InputTag)
 {
+	TriggeredInputTags.Remove(InputTag);
+
+	UE_LOG(LogCommonAbilities, Verbose, TEXT("%s: InputAbilityTagReleased: %s"),
+	       *GetName(), *InputTag.ToString());
 	if (UExtendedAbilitySystemComponent* AbilitySystem = GetAbilitySystemComponent<UExtendedAbilitySystemComponent>())
 	{
 		AbilitySystem->AbilityTagInputReleased(InputTag);

@@ -13,6 +13,7 @@ public class ExtendedCommonAbilities : ModuleRules
 		{
 			"Core",
 			"ExtendedGameplayAbilities",
+			"EnhancedInput",
 			"GameplayAbilities",
 			"GameplayMessageRuntime",
 			"GameplayTags",
