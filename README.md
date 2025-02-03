@@ -1,6 +1,6 @@
 # Extended Gameplay Abilities Plugins
 
-Three plugins for extending and working with Unreal's builtin Gameplay Abilities.
+Two plugins for extending and working with Unreal's builtin Gameplay Abilities.
 
 
 ## ExtendedGameplayAbilities
@@ -36,17 +36,10 @@ getting up and running with ability systems painless, as well as some other comm
 
 ### Plugin Dependencies
 
+The `AAbilityCharacter` inherits from `AModularCharacter`, which comes from the `ModularGameplayActors` plugin, and the
+death ability has built-in support for broadcasting gameplay message via the `GameplayMessageRouter`.
+
 - [GameplayMessageRouter](https://github.com/EpicGames/UnrealEngine/tree/ue5-main/Samples/Games/Lyra/Plugins/GameplayMessageRouter) from Lyra \*
 - [ModularGameplayActors](https://github.com/EpicGames/UnrealEngine/tree/ue5-main/Samples/Games/Lyra/Plugins/ModularGameplayActors) from Lyra \*
 
 _\* These links currently point the ue5-main branch. Switch to a release branch, or use the markeplace to download Lyra for your specific engine release version._
-
-## GameplayTagInput
-
-A small plugin with configuration data assets for setting up ability system input to be driven by gameplay tags.
-This abstraction allows separation between specific enhanced input actions and the abilities to activate.
-
-### Features
-
-- `UGameplayTagInputConfig` which maps input actions to gameplay tags.
-- TODO: builtin utils / examples for easily binding inputs using these configs.
