@@ -72,7 +72,6 @@ void UExtendedAbilitySystemComponent::AbilityTagInputPressed(const FGameplayTag&
 
 	// loosely based on UAbilitySystemComponent::AbilityLocalInputPressed,
 	// but without handling bReplicateInputDirectly (as it's not recommended)
-	// or the InputPressed replication event (which doesn't seem to support InstancedPerExecution?)
 
 	ABILITYLIST_SCOPE_LOCK();
 	for (FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
@@ -82,6 +81,13 @@ void UExtendedAbilitySystemComponent::AbilityTagInputPressed(const FGameplayTag&
 			if (Spec.IsActive())
 			{
 				AbilitySpecInputPressed(Spec);
+
+				TArray<UGameplayAbility*> Instances = Spec.GetAbilityInstances();
+				for (UGameplayAbility* Instance : Instances)
+				{
+					InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, Spec.Handle,
+					                      Instance->GetCurrentActivationInfoRef().GetActivationPredictionKey());
+				}
 			}
 			else
 			{
@@ -100,9 +106,8 @@ void UExtendedAbilitySystemComponent::AbilityTagInputReleased(const FGameplayTag
 		return;
 	}
 
-	// loosely based on UAbilitySystemComponent::AbilityLocalInputPressed,
+	// loosely based on UAbilitySystemComponent::AbilityLocalInputReleased,
 	// but without handling bReplicateInputDirectly (as it's not recommended)
-	// or the InputPressed replication event (which doesn't seem to support InstancedPerExecution?)
 
 	ABILITYLIST_SCOPE_LOCK();
 	for (FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
@@ -112,6 +117,13 @@ void UExtendedAbilitySystemComponent::AbilityTagInputReleased(const FGameplayTag
 			if (Spec.IsActive())
 			{
 				AbilitySpecInputReleased(Spec);
+
+				TArray<UGameplayAbility*> Instances = Spec.GetAbilityInstances();
+				for (UGameplayAbility* Instance : Instances)
+				{
+					InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, Spec.Handle,
+					                      Instance->GetCurrentActivationInfoRef().GetActivationPredictionKey());
+				}
 			}
 		}
 	}
