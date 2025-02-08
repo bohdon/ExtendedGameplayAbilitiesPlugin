@@ -51,7 +51,7 @@ public:
 	/** Called when ability input has been released by tag. */
 	void AbilityTagInputReleased(const FGameplayTag& InputTag);
 
-	/* Sends a local player Input Pressed event by input tag, notifying any bound abilities. */
+	/** Sends a local player Input Pressed event by input tag, notifying any bound abilities. */
 	UFUNCTION(BlueprintCallable, Meta = (AutoCreateRefTerm = "InputTag"), Category = "Gameplay Abilities")
 	void PressInputTag(const FGameplayTag& InputTag);
 
