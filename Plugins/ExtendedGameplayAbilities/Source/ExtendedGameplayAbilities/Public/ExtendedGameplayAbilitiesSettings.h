@@ -19,6 +19,8 @@ class EXTENDEDGAMEPLAYABILITIES_API UExtendedGameplayAbilitiesSettings : public 
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(Config, EditAnywhere, Meta = (AllowAbstract = false), Category = "General")
+	UExtendedGameplayAbilitiesSettings();
+
+	UPROPERTY(Config, EditAnywhere, NoClear, Meta = (AllowAbstract = false), Category = "General")
 	TSubclassOf<UGameplayEffect> DefaultDynamicCooldownEffectClass;
 };
