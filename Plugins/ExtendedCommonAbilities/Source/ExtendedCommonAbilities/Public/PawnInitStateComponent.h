@@ -11,12 +11,6 @@
 class UInputComponent;
 
 
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InitState_Spawned);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InitState_DataAvailable);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InitState_DataInitialized);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InitState_GameplayReady);
-
-
 /**
  * Coordinates the complex initialization process for pawns.
  * This is modeled after the ULyraPawnExtensionComponent and uses the same init state tags.

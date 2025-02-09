@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "ExtendedCommonAbilitiesModule.h"
+#include "ExtendedCommonAbilitiesTags.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerState.h"
 
@@ -91,7 +92,8 @@ void UAbilitiesInitStateComponent::UninitializeAbilitySystem()
 
 void UAbilitiesInitStateComponent::HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState)
 {
-	if (CurrentState == TAG_InitState_DataAvailable && DesiredState == TAG_InitState_DataInitialized)
+	if (CurrentState == ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable &&
+		DesiredState == ExtendedCommonAbilitiesTags::TAG_InitState_DataInitialized)
 	{
 		// transitioning to DataInitialized
 

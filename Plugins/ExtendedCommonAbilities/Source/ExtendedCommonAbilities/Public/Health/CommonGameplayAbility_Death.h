@@ -10,9 +10,6 @@
 class UCommonHealthComponent;
 
 
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_Trait_PersistOnDeath);
-
-
 /**
  * An ability for handling death. Triggered by 'Event.Death', this ability calls
  * StartDeath, then after optional animation or fx, FinishDeath.

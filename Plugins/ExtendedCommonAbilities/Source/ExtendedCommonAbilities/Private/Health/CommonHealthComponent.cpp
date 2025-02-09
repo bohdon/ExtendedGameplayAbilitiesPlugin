@@ -6,24 +6,18 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
+#include "ExtendedCommonAbilitiesTags.h"
 #include "GameplayEffectExtension.h"
 #include "NativeGameplayTags.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "Net/UnrealNetwork.h"
 
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayMessage_Death, "GameplayMessage.Death");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death, "Event.Death");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death_SelfDestruct, "Event.Death.SelfDestruct");
-UE_DEFINE_GAMEPLAY_TAG(TAG_State_Death_Dying, "State.Death.Dying");
-UE_DEFINE_GAMEPLAY_TAG(TAG_State_Death_Dead, "State.Death.Dead");
-
-
 UCommonHealthComponent::UCommonHealthComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
 	  bAutoRegisterAbilitySystem(true),
 	  bSendGameplayMessage(true),
-	  GameplayMessageChannel(TAG_GameplayMessage_Death),
+	  GameplayMessageChannel(ExtendedCommonAbilitiesTags::TAG_GameplayMessage_Death),
 	  HealthState(ECommonHealthState::Alive),
 	  AbilitySystem(nullptr)
 {
@@ -61,8 +55,8 @@ void UCommonHealthComponent::ClearGameplayTags()
 {
 	if (AbilitySystem)
 	{
-		AbilitySystem->SetLooseGameplayTagCount(TAG_State_Death_Dying, 0);
-		AbilitySystem->SetLooseGameplayTagCount(TAG_State_Death_Dead, 0);
+		AbilitySystem->SetLooseGameplayTagCount(ExtendedCommonAbilitiesTags::TAG_State_Death_Dying, 0);
+		AbilitySystem->SetLooseGameplayTagCount(ExtendedCommonAbilitiesTags::TAG_State_Death_Dead, 0);
 	}
 }
 
@@ -92,13 +86,13 @@ void UCommonHealthComponent::ClearAbilitySystem()
 
 void UCommonHealthComponent::TriggerDeathFromSelfDestruct()
 {
-	TriggerDeath(GetOwner(), FGameplayEffectContextHandle(), TAG_Event_Death_SelfDestruct);
+	TriggerDeath(GetOwner(), FGameplayEffectContextHandle(), ExtendedCommonAbilitiesTags::TAG_Event_Death_SelfDestruct);
 }
 
 void UCommonHealthComponent::TriggerDeath(AActor* Instigator, FGameplayEffectContextHandle Context, FGameplayTag DeathEventTag)
 {
 #if WITH_SERVER_CODE
-	if (!DeathEventTag.MatchesTag(TAG_Event_Death))
+	if (!DeathEventTag.MatchesTag(ExtendedCommonAbilitiesTags::TAG_Event_Death))
 	{
 		UE_LOG(LogAbilitySystem, Error, TEXT("DeathEventTag must be Event.Death or a child tag."));
 		return;
@@ -153,7 +147,7 @@ void UCommonHealthComponent::OnDeathStarted()
 {
 	if (AbilitySystem)
 	{
-		AbilitySystem->SetLooseGameplayTagCount(TAG_State_Death_Dying, 1);
+		AbilitySystem->SetLooseGameplayTagCount(ExtendedCommonAbilitiesTags::TAG_State_Death_Dying, 1);
 	}
 
 	AActor* Owner = GetOwner();
@@ -167,7 +161,7 @@ void UCommonHealthComponent::OnDeathFinished()
 {
 	if (AbilitySystem)
 	{
-		AbilitySystem->SetLooseGameplayTagCount(TAG_State_Death_Dead, 1);
+		AbilitySystem->SetLooseGameplayTagCount(ExtendedCommonAbilitiesTags::TAG_State_Death_Dead, 1);
 	}
 
 	AActor* Owner = GetOwner();
@@ -207,7 +201,7 @@ void UCommonHealthComponent::OnHPChanged(const FOnAttributeChangeData& ChangeDat
 	{
 		FGameplayEventData EventData;
 		EventData.Target = AbilitySystem->GetAvatarActor();
-		EventData.EventTag = TAG_Event_Death;
+		EventData.EventTag = ExtendedCommonAbilitiesTags::TAG_Event_Death;
 		if (ChangeData.GEModData)
 		{
 			EventData.ContextHandle = ChangeData.GEModData->EffectSpec.GetEffectContext();

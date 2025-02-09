@@ -11,13 +11,6 @@
 class UAbilitySystemComponent;
 
 
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayMessage_Death);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Death);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Death_SelfDestruct);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Death_Dying);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Death_Dead);
-
-
 UENUM(BlueprintType)
 enum class ECommonHealthState : uint8
 {

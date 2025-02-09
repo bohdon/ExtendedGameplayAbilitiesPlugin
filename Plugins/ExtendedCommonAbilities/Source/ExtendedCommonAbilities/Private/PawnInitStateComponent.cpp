@@ -3,20 +3,11 @@
 
 #include "PawnInitStateComponent.h"
 
+#include "ExtendedCommonAbilitiesTags.h"
 #include "NativeGameplayTags.h"
 #include "Components/GameFrameworkComponentManager.h"
 #include "Engine/GameInstance.h"
 #include "GameFramework/Controller.h"
-
-
-UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_InitState_Spawned, "InitState.Spawned",
-                               "1: Actor/component has initially spawned and can be extended");
-UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_InitState_DataAvailable, "InitState.DataAvailable",
-                               "2: All required data has been loaded/replicated and is ready for initialization");
-UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_InitState_DataInitialized, "InitState.DataInitialized",
-                               "3: The available data has been initialized for this actor/component, but it is not ready for full gameplay");
-UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_InitState_GameplayReady, "InitState.GameplayReady",
-                               "4: The actor/component is fully ready for active gameplay");
 
 
 FName UPawnInitStateComponent::NAME_FeatureName(TEXT("PawnInitState"));
@@ -34,10 +25,10 @@ void UPawnInitStateComponent::CheckDefaultInitialization()
 	CheckDefaultInitializationForImplementers();
 
 	static const TArray<FGameplayTag> StateChain = {
-		TAG_InitState_Spawned,
-		TAG_InitState_DataAvailable,
-		TAG_InitState_DataInitialized,
-		TAG_InitState_GameplayReady
+		ExtendedCommonAbilitiesTags::TAG_InitState_Spawned,
+		ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable,
+		ExtendedCommonAbilitiesTags::TAG_InitState_DataInitialized,
+		ExtendedCommonAbilitiesTags::TAG_InitState_GameplayReady
 	};
 
 	// attempt to progress this component's init state
@@ -46,20 +37,23 @@ void UPawnInitStateComponent::CheckDefaultInitialization()
 
 bool UPawnInitStateComponent::CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const
 {
-	if (!CurrentState.IsValid() && DesiredState == TAG_InitState_Spawned)
+	if (!CurrentState.IsValid() && DesiredState == ExtendedCommonAbilitiesTags::TAG_InitState_Spawned)
 	{
 		// just need the pawn to exist
 		return GetPawn<APawn>() != nullptr;
 	}
-	else if (CurrentState == TAG_InitState_Spawned && DesiredState == TAG_InitState_DataAvailable)
+	else if (CurrentState == ExtendedCommonAbilitiesTags::TAG_InitState_Spawned &&
+		DesiredState == ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable)
 	{
 		return CheckDataAvailable(Manager);
 	}
-	else if (CurrentState == TAG_InitState_DataAvailable && DesiredState == TAG_InitState_DataInitialized)
+	else if (CurrentState == ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable &&
+		DesiredState == ExtendedCommonAbilitiesTags::TAG_InitState_DataInitialized)
 	{
 		return CheckDataInitialized(Manager);
 	}
-	else if (CurrentState == TAG_InitState_DataInitialized && DesiredState == TAG_InitState_GameplayReady)
+	else if (CurrentState == ExtendedCommonAbilitiesTags::TAG_InitState_DataInitialized &&
+		DesiredState == ExtendedCommonAbilitiesTags::TAG_InitState_GameplayReady)
 	{
 		return true;
 	}
@@ -72,7 +66,7 @@ void UPawnInitStateComponent::OnActorInitStateChanged(const FActorInitStateChang
 	// if another feature is now in DataAvailable, check if we can progress state
 	if (Params.FeatureName != NAME_FeatureName)
 	{
-		if (Params.FeatureState == TAG_InitState_DataAvailable)
+		if (Params.FeatureState == ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable)
 		{
 			CheckDefaultInitialization();
 		}
@@ -103,7 +97,7 @@ bool UPawnInitStateComponent::CheckDataInitialized(UGameFrameworkComponentManage
 	check(Pawn);
 
 	// wait for any other features to reach DataAvailable state
-	return Manager->HaveAllFeaturesReachedInitState(Pawn, TAG_InitState_DataAvailable);
+	return Manager->HaveAllFeaturesReachedInitState(Pawn, ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable);
 }
 
 void UPawnInitStateComponent::OnRegister()
@@ -122,7 +116,7 @@ void UPawnInitStateComponent::BeginPlay()
 
 	BindOnActorInitStateChanged(NAME_None, FGameplayTag(), false);
 
-	const bool bSuccess = TryToChangeInitState(TAG_InitState_Spawned);
+	const bool bSuccess = TryToChangeInitState(ExtendedCommonAbilitiesTags::TAG_InitState_Spawned);
 	ensureMsgf(bSuccess, TEXT("PawnInitStateComponent on %s failed to transition to Spawned init state."), *GetNameSafe(GetOwner()));
 
 	CheckDefaultInitialization();
