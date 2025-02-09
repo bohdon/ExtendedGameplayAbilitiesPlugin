@@ -8,6 +8,9 @@ namespace ExtendedCommonAbilitiesTags
 {
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_Ability_Trait_PersistOnDeath, "Ability.Trait.PersistOnDeath", "This ability should not be canceled upon death");
 
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_Effect_Type_Damage, "Effect.Type.Damage", "Gameplay effect that deals damage");
+
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_Event_Damage_Outgoing, "Event.Damage.Outgoing", "Triggered when damage is dealt by this ability system");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_Event_Death, "Event.Death", "Triggered when a character dies from health reaching 0 or other causes");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(TAG_Event_Death_SelfDestruct, "Event.Death.SelfDestruct", "Triggered when character dies from self destruct");
 

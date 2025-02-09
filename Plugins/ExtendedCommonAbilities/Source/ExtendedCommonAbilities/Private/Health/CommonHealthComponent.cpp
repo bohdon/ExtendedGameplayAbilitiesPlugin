@@ -8,6 +8,7 @@
 #include "AbilitySystemLog.h"
 #include "ExtendedCommonAbilitiesTags.h"
 #include "GameplayEffectExtension.h"
+#include "HPAttributeSet.h"
 #include "NativeGameplayTags.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "Net/UnrealNetwork.h"
@@ -23,6 +24,8 @@ UCommonHealthComponent::UCommonHealthComponent(const FObjectInitializer& ObjectI
 {
 	bWantsInitializeComponent = true;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
+
+	HealthAttribute = UHPAttributeSet::GetHPAttribute();
 
 	SetIsReplicatedByDefault(true);
 }
@@ -94,7 +97,8 @@ void UCommonHealthComponent::TriggerDeath(AActor* Instigator, FGameplayEffectCon
 #if WITH_SERVER_CODE
 	if (!DeathEventTag.MatchesTag(ExtendedCommonAbilitiesTags::TAG_Event_Death))
 	{
-		UE_LOG(LogAbilitySystem, Error, TEXT("DeathEventTag must be Event.Death or a child tag."));
+		UE_LOG(LogAbilitySystem, Error, TEXT("[%s] TriggerDeath: DeathEventTag must be %s or a child tag."),
+		       *GetReadableName(), *ExtendedCommonAbilitiesTags::TAG_Event_Death.GetTag().ToString());
 		return;
 	}
 
