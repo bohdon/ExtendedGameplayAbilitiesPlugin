@@ -49,6 +49,11 @@ public:
 	UFUNCTION(BlueprintPure, FieldNotify)
 	bool IsInhibited() const;
 
+	UFUNCTION(BlueprintPure)
+	float GetTimeRemaining() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetNormalizedTimeRemaining() const;
 
 	const FActiveGameplayEffect* GetActiveGameplayEffect() const;
 

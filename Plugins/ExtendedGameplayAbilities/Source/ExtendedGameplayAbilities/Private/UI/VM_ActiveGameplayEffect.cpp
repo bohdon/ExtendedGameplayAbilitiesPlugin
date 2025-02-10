@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Engine/World.h"
 
 
 void UVM_ActiveGameplayEffect::SetActiveEffectHandle(FActiveGameplayEffectHandle NewHandle)
@@ -78,6 +79,17 @@ bool UVM_ActiveGameplayEffect::IsInhibited() const
 		return ActiveEffect->bIsInhibited;
 	}
 	return false;
+}
+
+float UVM_ActiveGameplayEffect::GetTimeRemaining() const
+{
+	return FMath::Max(GetEndTime() - GetWorld()->GetTimeSeconds(), 0.f);
+}
+
+float UVM_ActiveGameplayEffect::GetNormalizedTimeRemaining() const
+{
+	const float Duration = GetDuration();
+	return Duration > UE_SMALL_NUMBER ? GetTimeRemaining() / Duration : 0.f;
 }
 
 const FActiveGameplayEffect* UVM_ActiveGameplayEffect::GetActiveGameplayEffect() const
