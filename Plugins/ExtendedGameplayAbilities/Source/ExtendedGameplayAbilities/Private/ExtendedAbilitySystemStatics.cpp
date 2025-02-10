@@ -113,6 +113,32 @@ TArray<FActiveGameplayEffectHandle> UExtendedAbilitySystemStatics::GetActiveEffe
 	return AbilitySystem->GetActiveEffects(Query);
 }
 
+FGameplayTagContainer UExtendedAbilitySystemStatics::GetAllActiveEffectAssetTags(FActiveGameplayEffectHandle ActiveHandle)
+{
+	FGameplayTagContainer Result;
+	if (const UAbilitySystemComponent* ASC = ActiveHandle.GetOwningAbilitySystemComponent())
+	{
+		if (const FActiveGameplayEffect* ActiveGE = ASC->GetActiveGameplayEffect(ActiveHandle))
+		{
+			ActiveGE->Spec.GetAllAssetTags(Result);
+		}
+	}
+	return Result;
+}
+
+FGameplayTagContainer UExtendedAbilitySystemStatics::GetAllActiveEffectGrantedTags(FActiveGameplayEffectHandle ActiveHandle)
+{
+	FGameplayTagContainer Result;
+	if (const UAbilitySystemComponent* ASC = ActiveHandle.GetOwningAbilitySystemComponent())
+	{
+		if (const FActiveGameplayEffect* ActiveGE = ASC->GetActiveGameplayEffect(ActiveHandle))
+		{
+			ActiveGE->Spec.GetAllGrantedTags(Result);
+		}
+	}
+	return Result;
+}
+
 void UExtendedAbilitySystemStatics::AdjustProportionalAttribute(UAbilitySystemComponent* AbilitySystem, const FGameplayAttribute& Attribute,
                                                                 float OldRelatedValue, float NewRelatedValue, bool bRound, bool bClamp)
 {

@@ -34,7 +34,7 @@ public:
 	void SetAbilitySystem(UAbilitySystemComponent* NewAbilitySystem);
 
 	UFUNCTION(BlueprintCallable)
-	void SetAttributeAndAbilitySystem(FGameplayAttribute NewAttribute, UAbilitySystemComponent* NewAbilitySystem);
+	void SetAbilitySystemAndAttribute(UAbilitySystemComponent* NewAbilitySystem, FGameplayAttribute NewAttribute);
 
 	UAbilitySystemComponent* GetAbilitySystem() const { return AbilitySystem.Get(); }
 

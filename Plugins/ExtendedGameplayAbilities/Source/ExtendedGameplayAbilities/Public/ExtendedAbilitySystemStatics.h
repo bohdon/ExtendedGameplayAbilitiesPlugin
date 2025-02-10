@@ -77,6 +77,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ability|GameplayEffect")
 	static TArray<FActiveGameplayEffectHandle> GetActiveEffectsGrantingGameplayCue(UAbilitySystemComponent* AbilitySystem, FGameplayTag GameplayCueTag);
 
+	/** Return all asset tags for an active gameplay effect. */
+	UFUNCTION(BlueprintCallable, Category = "Ability|GameplayEffect")
+	static FGameplayTagContainer GetAllActiveEffectAssetTags(FActiveGameplayEffectHandle ActiveHandle);
+
+	/** Return all granted tags for an active gameplay effect. */
+	UFUNCTION(BlueprintCallable, Category = "Ability|GameplayEffect")
+	static FGameplayTagContainer GetAllActiveEffectGrantedTags(FActiveGameplayEffectHandle ActiveHandle);
+
 	/**
 	 * Change an attribute proportionally based on the change to another attribute.
 	 * This is useful for example if MaxHP increases or decreases, and you want HP to remain the same % of MaxHP as it was before the change.
