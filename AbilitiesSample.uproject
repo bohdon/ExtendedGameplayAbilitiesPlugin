@@ -18,6 +18,10 @@
 		{
 			"Name": "ExtendedCommonAbilities",
 			"Enabled": true
+		},
+		{
+			"Name": "CommonUI",
+			"Enabled": true
 		}
 	]
 }
