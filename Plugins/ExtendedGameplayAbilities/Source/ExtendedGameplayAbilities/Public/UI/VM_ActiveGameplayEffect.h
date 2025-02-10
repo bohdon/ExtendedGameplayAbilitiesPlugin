@@ -32,6 +32,8 @@ public:
 	UFUNCTION(BlueprintSetter)
 	void SetActiveEffectHandle(FActiveGameplayEffectHandle NewHandle);
 
+	FActiveGameplayEffectHandle GetActiveEffectHandle() const { return ActiveEffectHandle; }
+
 	UFUNCTION(BlueprintPure, FieldNotify)
 	int32 GetStackCount() const;
 
