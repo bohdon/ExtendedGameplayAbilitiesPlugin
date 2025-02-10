@@ -59,6 +59,10 @@ void UVM_GameplayAbility::SetAbilitySystemAndSpecHandle(UAbilitySystemComponent*
 
 bool UVM_GameplayAbility::IsActive() const
 {
+	if (bIsActivating)
+	{
+		return true;
+	}
 	if (FGameplayAbilitySpec* AbilitySpec = GetAbilitySpec())
 	{
 		return AbilitySpec->IsActive();
@@ -123,6 +127,7 @@ void UVM_GameplayAbility::OnAnyAbilityActivated(UGameplayAbility* GameplayAbilit
 {
 	if (GameplayAbility->GetClass() == GetAbilityClass())
 	{
+		TGuardValue<bool> IsActivatingGuard(bIsActivating, true);
 		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsActive);
 	}
 }

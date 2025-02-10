@@ -65,6 +65,12 @@ protected:
 	/** Cooldown tags that were registered for change events. */
 	FGameplayTagContainer RegisteredCooldownTags;
 
+	/**
+	 * True during OnAnyAbilityActivated, and used by IsActive to temporarily return true,
+	 * since the ability spec ActiveCount isn't updated until after that event.
+	 */
+	bool bIsActivating = false;
+
 	virtual void OnAnyAbilityActivated(UGameplayAbility* GameplayAbility);
 	virtual void OnAnyAbilityEnded(const FAbilityEndedData& AbilityEndedData);
 	virtual void OnCooldownTagChanged(FGameplayTag GameplayTag, int32 NewCount);
