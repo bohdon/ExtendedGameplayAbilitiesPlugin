@@ -14,7 +14,7 @@ void FExtendedAbilitySetHandles::Reset()
 {
 	AbilitySpecHandles.Reset();
 	GameplayEffectHandles.Reset();
-	AttributeSets.Reset();
+	AttributeSetClasses.Reset();
 }
 
 void FExtendedAbilitySetHandles::AddAbilitySpecHandle(const FGameplayAbilitySpecHandle& Handle)
@@ -33,11 +33,11 @@ void FExtendedAbilitySetHandles::AddGameplayEffectHandle(const FActiveGameplayEf
 	}
 }
 
-void FExtendedAbilitySetHandles::AddAttributeSet(UAttributeSet* AttributeSet)
+void FExtendedAbilitySetHandles::AddAttributeSet(const UAttributeSet* AttributeSet)
 {
 	if (IsValid(AttributeSet))
 	{
-		AttributeSets.Add(AttributeSet);
+		AttributeSetClasses.Add(AttributeSet->GetClass());
 	}
 }
 
@@ -52,6 +52,8 @@ FExtendedAbilitySetHandles UExtendedAbilitySet::GiveToAbilitySystem(UAbilitySyst
 
 	FExtendedAbilitySetHandles Result;
 
+	Result.AbilitySet = this;
+
 	// give attribute sets first, since passive abilities or effects may need to capture attribute values
 	for (int32 SetIdx = 0; SetIdx < GrantedAttributes.Num(); ++SetIdx)
 	{
@@ -59,7 +61,8 @@ FExtendedAbilitySetHandles UExtendedAbilitySet::GiveToAbilitySystem(UAbilitySyst
 
 		if (!IsValid(SetToGrant.AttributeSet))
 		{
-			UE_LOG(LogAbilitySystem, Error, TEXT("GrantedAttributes[%d] on ability set %s is not valid."), SetIdx, *GetNameSafe(this));
+			UE_LOG(LogAbilitySystem, Error, TEXT("GrantedAttributes[%d] on ability set %s is not valid."),
+			       SetIdx, *GetNameSafe(this));
 			continue;
 		}
 
@@ -82,7 +85,8 @@ FExtendedAbilitySetHandles UExtendedAbilitySet::GiveToAbilitySystem(UAbilitySyst
 
 		if (!IsValid(AbilityToGrant.Ability))
 		{
-			UE_LOG(LogAbilitySystem, Error, TEXT("GrantedAbilities[%d] on ability set %s is not valid."), AbilityIdx, *GetNameSafe(this));
+			UE_LOG(LogAbilitySystem, Error, TEXT("GrantedAbilities[%d] on ability set %s is not valid."),
+			       AbilityIdx, *GetNameSafe(this));
 			continue;
 		}
 
@@ -99,7 +103,8 @@ FExtendedAbilitySetHandles UExtendedAbilitySet::GiveToAbilitySystem(UAbilitySyst
 
 		if (!IsValid(EffectToGrant.Effect))
 		{
-			UE_LOG(LogAbilitySystem, Error, TEXT("GrantedEffects[%d] on ability set %s is not valid."), EffectIdx, *GetNameSafe(this));
+			UE_LOG(LogAbilitySystem, Error, TEXT("GrantedEffects[%d] on ability set %s is not valid."),
+			       EffectIdx, *GetNameSafe(this));
 			continue;
 		}
 
@@ -112,7 +117,9 @@ FExtendedAbilitySetHandles UExtendedAbilitySet::GiveToAbilitySystem(UAbilitySyst
 	return Result;
 }
 
-void UExtendedAbilitySet::RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem, FExtendedAbilitySetHandles& AbilitySetHandles)
+void UExtendedAbilitySet::RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem,
+                                                  FExtendedAbilitySetHandles& AbilitySetHandles,
+                                                  bool bKeepAttributeSets) const
 {
 	check(AbilitySystem);
 
@@ -139,12 +146,15 @@ void UExtendedAbilitySet::RemoveFromAbilitySystem(UAbilitySystemComponent* Abili
 		}
 	}
 
-	// remove attribute sets
-	for (UAttributeSet* Set : AbilitySetHandles.AttributeSets)
+	// remove granted attribute sets
+	if (!bKeepAttributeSets)
 	{
-		if (IsValid(Set))
+		for (const TSubclassOf<UAttributeSet>& AttributeSetClass : AbilitySetHandles.AttributeSetClasses)
 		{
-			AbilitySystem->RemoveSpawnedAttribute(Set);
+			if (UAttributeSet* AttributeSet = const_cast<UAttributeSet*>(AbilitySystem->GetAttributeSet(AttributeSetClass)))
+			{
+				AbilitySystem->RemoveSpawnedAttribute(AttributeSet);
+			}
 		}
 	}
 

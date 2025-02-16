@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ActiveGameplayEffectHandle.h"
+#include "ExtendedAbilitySet.h"
 #include "GameplayEffectSet.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ExtendedAbilitySystemStatics.generated.h"
@@ -84,6 +85,33 @@ public:
 	/** Return all granted tags for an active gameplay effect. */
 	UFUNCTION(BlueprintCallable, Category = "Ability|GameplayEffect")
 	static FGameplayTagContainer GetAllActiveEffectGrantedTags(FActiveGameplayEffectHandle ActiveHandle);
+
+	/**
+	 * Grant an ability set to an ability system.
+	 * @param AbilitySystem The ability system to receive the abilities.
+	 * @param AbilitySet The ability set to grant.
+	 * @param SourceObject The object responsible for granting the ability set.
+	 * @param OverrideLevel An override to control the level for all applied abilities and effects.
+	 * @return Handles to all abilities, effects, and attributes that were given.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay Abilities")
+	static FExtendedAbilitySetHandles GiveAbilitySet(UAbilitySystemComponent* AbilitySystem,
+	                                                 UExtendedAbilitySet* AbilitySet,
+	                                                 UObject* SourceObject = nullptr,
+	                                                 int32 OverrideLevel = -1);
+
+	/**
+	 * Remove an ability set from an ability system.
+	 * This may remove an attribute set that could still be important to some other abilities / effects,
+	 * so be sure that those attributes are no longer needed before removing, or set bKeepAttributeSets to true.
+	 * @param AbilitySystem The ability system to update.
+	 * @param AbilitySetHandles The ability set handles stored from when the ability set was given.
+	 * @param bKeepAttributeSets Don't remove granted AttributeSets.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay Abilities")
+	static void RemoveAbilitySet(UAbilitySystemComponent* AbilitySystem,
+	                             UPARAM(ref) FExtendedAbilitySetHandles& AbilitySetHandles,
+	                             bool bKeepAttributeSets = false);
 
 	/**
 	 * Change an attribute proportionally based on the change to another attribute.

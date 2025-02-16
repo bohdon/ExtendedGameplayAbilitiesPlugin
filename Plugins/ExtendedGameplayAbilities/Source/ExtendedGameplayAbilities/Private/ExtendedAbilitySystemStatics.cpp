@@ -139,6 +139,31 @@ FGameplayTagContainer UExtendedAbilitySystemStatics::GetAllActiveEffectGrantedTa
 	return Result;
 }
 
+FExtendedAbilitySetHandles UExtendedAbilitySystemStatics::GiveAbilitySet(UAbilitySystemComponent* AbilitySystem,
+                                                                         UExtendedAbilitySet* AbilitySet,
+                                                                         UObject* SourceObject,
+                                                                         int32 OverrideLevel)
+{
+	if (!AbilitySystem || !AbilitySet)
+	{
+		return FExtendedAbilitySetHandles();
+	}
+
+	return AbilitySet->GiveToAbilitySystem(AbilitySystem, SourceObject, OverrideLevel);
+}
+
+void UExtendedAbilitySystemStatics::RemoveAbilitySet(UAbilitySystemComponent* AbilitySystem,
+                                                     FExtendedAbilitySetHandles& AbilitySetHandles,
+                                                     bool bKeepAttributeSets)
+{
+	if (!AbilitySystem || !AbilitySetHandles.AbilitySet)
+	{
+		return;
+	}
+
+	AbilitySetHandles.AbilitySet->RemoveFromAbilitySystem(AbilitySystem, AbilitySetHandles, bKeepAttributeSets);
+}
+
 void UExtendedAbilitySystemStatics::AdjustProportionalAttribute(UAbilitySystemComponent* AbilitySystem, const FGameplayAttribute& Attribute,
                                                                 float OldRelatedValue, float NewRelatedValue, bool bRound, bool bClamp)
 {

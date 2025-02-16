@@ -10,6 +10,7 @@
 #include "Engine/DataAsset.h"
 #include "ExtendedAbilitySet.generated.h"
 
+class UExtendedAbilitySet;
 class UAttributeSet;
 class UGameplayAbility;
 class UGameplayEffect;
@@ -78,17 +79,28 @@ struct EXTENDEDGAMEPLAYABILITIES_API FExtendedAbilitySetHandles
 {
 	GENERATED_BODY()
 
+	/** The ability set that was granted. */
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<const UExtendedAbilitySet> AbilitySet;
+
 	/** Handles of the granted gameplay abilities. */
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TArray<FGameplayAbilitySpecHandle> AbilitySpecHandles;
 
 	/** Handles of the granted gameplay effects. */
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TArray<FActiveGameplayEffectHandle> GameplayEffectHandles;
 
-	/** Pointers to the granted attribute sets. */
-	UPROPERTY()
-	TArray<TObjectPtr<UAttributeSet>> AttributeSets;
+	/**
+	 * The attribute set classes that were spawned.
+	 * This will be empty if the ability system already had matching attribute sets.
+	 */
+	UPROPERTY(BlueprintReadOnly)
+	TArray<TSubclassOf<UAttributeSet>> AttributeSetClasses;
+
+	/** Additional user data for subclasses of UExtendedAbilitySet to use if needed. */
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UObject> UserData;
 
 	/** Clear all handles and references. */
 	void Reset();
@@ -97,7 +109,7 @@ struct EXTENDEDGAMEPLAYABILITIES_API FExtendedAbilitySetHandles
 
 	void AddGameplayEffectHandle(const FActiveGameplayEffectHandle& Handle);
 
-	void AddAttributeSet(UAttributeSet* AttributeSet);
+	void AddAttributeSet(const UAttributeSet* AttributeSet);
 };
 
 
@@ -134,8 +146,15 @@ public:
 	                                                       UObject* SourceObject = nullptr,
 	                                                       int32 OverrideLevel = -1) const;
 
-	static void RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem,
-	                                    FExtendedAbilitySetHandles& AbilitySetHandles);
+	/**
+	 * Remove this ability set from an ability system.
+	 * @param AbilitySystem The ability system to remove from.
+	 * @param AbilitySetHandles The handles to abilities and effects that were given in GiveToAbilitySystem.
+	 * @param bKeepAttributeSets If true, don't remove attribute sets (that may be needed by other effects or abilities).
+	 */
+	virtual void RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem,
+	                                     FExtendedAbilitySetHandles& AbilitySetHandles,
+	                                     bool bKeepAttributeSets = false) const;
 
 protected:
 	/** Create and return a new ability spec to add to the ability system. */
