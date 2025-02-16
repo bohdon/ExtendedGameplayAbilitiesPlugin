@@ -105,7 +105,7 @@ struct EXTENDEDGAMEPLAYABILITIES_API FExtendedAbilitySetHandles
  * Defines a group of abilities, effects, and attribute sets to be
  * easily applied to an ability system component together.
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class EXTENDEDGAMEPLAYABILITIES_API UExtendedAbilitySet : public UDataAsset
 {
 	GENERATED_BODY()
