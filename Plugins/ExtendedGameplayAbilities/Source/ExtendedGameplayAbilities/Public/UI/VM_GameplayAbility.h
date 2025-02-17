@@ -37,8 +37,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetAbilitySystem(UAbilitySystemComponent* NewAbilitySystem);
 
+	UAbilitySystemComponent* GetAbilitySystem() const { return AbilitySystem.Get(); }
+
 	UFUNCTION(BlueprintCallable)
 	virtual void SetAbilitySystemAndSpecHandle(UAbilitySystemComponent* NewAbilitySystem, FGameplayAbilitySpecHandle NewAbilitySpecHandle);
+
+	/** Does the ability spec handle point to a valid ability? */
+	UFUNCTION(BlueprintPure, FieldNotify)
+	bool HasAbility() const;
 
 	UFUNCTION(BlueprintPure, FieldNotify)
 	bool IsActive() const;

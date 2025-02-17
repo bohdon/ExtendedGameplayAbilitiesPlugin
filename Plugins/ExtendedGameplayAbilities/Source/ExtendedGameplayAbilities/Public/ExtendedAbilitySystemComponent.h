@@ -44,6 +44,8 @@ public:
 	TArray<FActiveGameplayEffectHandle> ApplyGameplayEffectSpecSetToSelf(const FGameplayEffectSpecSet& EffectSpecSet);
 
 	virtual void InitializeComponent() override;
+	virtual void OnGiveAbility(FGameplayAbilitySpec& AbilitySpec) override;
+	virtual void OnRemoveAbility(FGameplayAbilitySpec& AbilitySpec) override;
 
 	/** Called when ability input has been pressed by tag. */
 	void AbilityTagInputPressed(const FGameplayTag& InputTag);
@@ -58,4 +60,12 @@ public:
 	/** Sends a local player Input Released event by input tag, notifying any bound abilities. */
 	UFUNCTION(BlueprintCallable, Meta = (AutoCreateRefTerm = "InputTag"), Category = "Gameplay Abilities")
 	void ReleaseInputTag(const FGameplayTag& InputTag);
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FAbilityAddOrRemoveDelegate, FGameplayAbilitySpec& /*AbilitySpec*/);
+
+	/** Called when a new ability is added. */
+	FAbilityAddOrRemoveDelegate OnGiveAbilityEvent;
+
+	/** Called when an ability is removed. */
+	FAbilityAddOrRemoveDelegate OnRemoveAbilityEvent;
 };

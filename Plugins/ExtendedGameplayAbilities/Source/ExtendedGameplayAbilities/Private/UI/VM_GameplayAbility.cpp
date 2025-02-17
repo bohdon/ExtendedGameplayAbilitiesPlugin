@@ -50,11 +50,17 @@ void UVM_GameplayAbility::SetAbilitySystemAndSpecHandle(UAbilitySystemComponent*
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(AbilitySpecHandle);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(AbilitySystem);
 
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(HasAbility);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilityCDO);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilityClass);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetCooldownTags);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsActive);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsOnCooldown);
+}
+
+bool UVM_GameplayAbility::HasAbility() const
+{
+	return GetAbilitySpec() != nullptr;
 }
 
 bool UVM_GameplayAbility::IsActive() const

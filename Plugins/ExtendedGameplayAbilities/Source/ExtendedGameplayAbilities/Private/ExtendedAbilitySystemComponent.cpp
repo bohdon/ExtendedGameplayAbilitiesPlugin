@@ -63,6 +63,26 @@ void UExtendedAbilitySystemComponent::InitializeComponent()
 	}
 }
 
+void UExtendedAbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec)
+{
+	Super::OnGiveAbility(AbilitySpec);
+
+	if (AbilitySpec.Ability)
+	{
+		OnGiveAbilityEvent.Broadcast(AbilitySpec);
+	}
+}
+
+void UExtendedAbilitySystemComponent::OnRemoveAbility(FGameplayAbilitySpec& AbilitySpec)
+{
+	Super::OnRemoveAbility(AbilitySpec);
+
+	if (AbilitySpec.Ability)
+	{
+		OnRemoveAbilityEvent.Broadcast(AbilitySpec);
+	}
+}
+
 void UExtendedAbilitySystemComponent::AbilityTagInputPressed(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid())
