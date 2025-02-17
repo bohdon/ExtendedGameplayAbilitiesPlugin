@@ -27,6 +27,7 @@ void UVM_GameplayAbility::SetAbilitySystemAndSpecHandle(UAbilitySystemComponent*
 	{
 		AbilitySystem->AbilityActivatedCallbacks.RemoveAll(this);
 		AbilitySystem->OnAbilityEnded.RemoveAll(this);
+		AbilitySystem->OnActiveGameplayEffectAddedDelegateToSelf.RemoveAll(this);
 		for (const FGameplayTag& CooldownTag : RegisteredCooldownTags)
 		{
 			AbilitySystem->RegisterGameplayTagEvent(CooldownTag).RemoveAll(this);
@@ -38,8 +39,12 @@ void UVM_GameplayAbility::SetAbilitySystemAndSpecHandle(UAbilitySystemComponent*
 
 	if (AbilitySystem.IsValid())
 	{
+		// listen for ability activation
 		AbilitySystem->AbilityActivatedCallbacks.AddUObject(this, &UVM_GameplayAbility::OnAnyAbilityActivated);
 		AbilitySystem->OnAbilityEnded.AddUObject(this, &UVM_GameplayAbility::OnAnyAbilityEnded);
+		// listen for cooldown effects being applied
+		AbilitySystem->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &UVM_GameplayAbility::OnActiveGameplayEffectAdded);
+		// listen for cooldown tags to update IsOnCooldown
 		RegisteredCooldownTags = GetCooldownTags();
 		for (const FGameplayTag& CooldownTag : RegisteredCooldownTags)
 		{
@@ -50,10 +55,11 @@ void UVM_GameplayAbility::SetAbilitySystemAndSpecHandle(UAbilitySystemComponent*
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(AbilitySpecHandle);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(AbilitySystem);
 
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(HasAbility);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilityCDO);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilityClass);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetActiveCooldownEffect);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetCooldownTags);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(HasAbility);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsActive);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsOnCooldown);
 }
@@ -91,7 +97,7 @@ bool UVM_GameplayAbility::IsOnCooldown() const
 
 FGameplayTagContainer UVM_GameplayAbility::GetCooldownTags() const
 {
-	FGameplayAbilitySpec* AbilitySpec = GetAbilitySpec();
+	const FGameplayAbilitySpec* AbilitySpec = GetAbilitySpec();
 	if (AbilitySpec && AbilitySpec->Ability)
 	{
 		if (const FGameplayTagContainer* CooldownTags = AbilitySpec->Ability->GetCooldownTags())
@@ -100,6 +106,34 @@ FGameplayTagContainer UVM_GameplayAbility::GetCooldownTags() const
 		}
 	}
 	return FGameplayTagContainer();
+}
+
+FActiveGameplayEffectHandle UVM_GameplayAbility::GetActiveCooldownEffect() const
+{
+	const FGameplayTagContainer CooldownTags = GetCooldownTags();
+	if (!CooldownTags.IsEmpty())
+	{
+		const FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(CooldownTags);
+
+		FActiveGameplayEffectHandle BestEffect;
+		float BestEndTime = 0.f;
+
+		for (FActiveGameplayEffectsContainer::ConstIterator EffectIt = AbilitySystem->GetActiveGameplayEffects().CreateConstIterator(); EffectIt; ++EffectIt)
+		{
+			const FActiveGameplayEffect& Effect = *EffectIt;
+			if (Query.Matches(Effect))
+			{
+				const float EndTime = Effect.GetEndTime();
+				if (!BestEffect.IsValid() || EndTime > BestEndTime)
+				{
+					BestEffect = Effect.Handle;
+					BestEndTime = EndTime;
+				}
+			}
+		}
+		return BestEffect;
+	}
+	return FActiveGameplayEffectHandle();
 }
 
 const UGameplayAbility* UVM_GameplayAbility::GetAbilityCDO() const
@@ -149,4 +183,20 @@ void UVM_GameplayAbility::OnAnyAbilityEnded(const FAbilityEndedData& AbilityEnde
 void UVM_GameplayAbility::OnCooldownTagChanged(FGameplayTag GameplayTag, int32 NewCount)
 {
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsOnCooldown);
+}
+
+void UVM_GameplayAbility::OnActiveGameplayEffectAdded(UAbilitySystemComponent* AbilitySystemComponent,
+                                                      const FGameplayEffectSpec& GameplayEffectSpec,
+                                                      FActiveGameplayEffectHandle ActiveGameplayEffectHandle)
+{
+	if (AbilitySystem.Get() == AbilitySystemComponent)
+	{
+		FGameplayTagContainer GrantedTags;
+		GameplayEffectSpec.GetAllGrantedTags(GrantedTags);
+		if (GrantedTags.HasAny(GetCooldownTags()))
+		{
+			UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetActiveCooldownEffect);
+			OnCooldownEffectAppliedEvent.Broadcast(ActiveGameplayEffectHandle);
+		}
+	}
 }

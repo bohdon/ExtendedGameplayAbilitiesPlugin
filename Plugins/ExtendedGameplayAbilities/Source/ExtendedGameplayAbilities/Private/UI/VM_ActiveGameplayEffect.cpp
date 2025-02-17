@@ -88,8 +88,13 @@ float UVM_ActiveGameplayEffect::GetTimeRemaining() const
 
 float UVM_ActiveGameplayEffect::GetNormalizedTimeRemaining() const
 {
-	const float Duration = GetDuration();
-	return Duration > UE_SMALL_NUMBER ? GetTimeRemaining() / Duration : 0.f;
+	if (const FActiveGameplayEffect* ActiveEffect = GetActiveGameplayEffect())
+	{
+		const float Duration = ActiveEffect->GetDuration();
+		const float TimeRemaining = FMath::Max(ActiveEffect->GetEndTime() - GetWorld()->GetTimeSeconds(), 0.f);
+		return Duration > UE_SMALL_NUMBER ? FMath::Clamp(TimeRemaining / Duration, 0.f, 1.f) : 0.f;
+	}
+	return 0.f;
 }
 
 const FActiveGameplayEffect* UVM_ActiveGameplayEffect::GetActiveGameplayEffect() const

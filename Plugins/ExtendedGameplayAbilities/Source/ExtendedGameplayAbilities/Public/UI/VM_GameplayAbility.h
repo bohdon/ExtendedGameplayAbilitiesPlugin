@@ -56,6 +56,13 @@ public:
 	FGameplayTagContainer GetCooldownTags() const;
 
 	/**
+	 * Get the currently active cooldown gameplay effect for this ability, if any.
+	 * If multiple are active, return the one that will end last.
+	 */
+	UFUNCTION(BlueprintPure, FieldNotify)
+	FActiveGameplayEffectHandle GetActiveCooldownEffect() const;
+
+	/**
 	 * Return the ability class default object, which should never be modified, but can be used
 	 * to retrieve information about the ability and its class.
 	 */
@@ -66,6 +73,12 @@ public:
 	TSubclassOf<UGameplayAbility> GetAbilityClass() const;
 
 	FGameplayAbilitySpec* GetAbilitySpec() const;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCooldownEffectAppliedDynDelegate, FActiveGameplayEffectHandle, EffectHandle);
+
+	/** Called when a cooldown effect for this ability is applied. */
+	UPROPERTY(BlueprintAssignable)
+	FCooldownEffectAppliedDynDelegate OnCooldownEffectAppliedEvent;
 
 protected:
 	/** Cooldown tags that were registered for change events. */
@@ -80,4 +93,7 @@ protected:
 	virtual void OnAnyAbilityActivated(UGameplayAbility* GameplayAbility);
 	virtual void OnAnyAbilityEnded(const FAbilityEndedData& AbilityEndedData);
 	virtual void OnCooldownTagChanged(FGameplayTag GameplayTag, int32 NewCount);
+	virtual void OnActiveGameplayEffectAdded(UAbilitySystemComponent* AbilitySystemComponent,
+	                                         const FGameplayEffectSpec& GameplayEffectSpec,
+	                                         FActiveGameplayEffectHandle ActiveGameplayEffectHandle);
 };
