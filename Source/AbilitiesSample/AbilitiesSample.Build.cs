@@ -21,6 +21,7 @@ public class AbilitiesSample : ModuleRules
 			"CoreUObject",
 			"Engine",
 			"ExtendedGameplayAbilities",
+			"GameplayAbilities",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
