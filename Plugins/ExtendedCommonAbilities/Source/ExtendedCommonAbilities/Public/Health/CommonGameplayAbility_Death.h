@@ -25,8 +25,24 @@ public:
 	UCommonGameplayAbility_Death(const FObjectInitializer& ObjectInitializer);
 
 	/** Automatically call StartDeath when the ability is activated. */
-	UPROPERTY(BlueprintReadWrite, Category = "Death")
-	bool bStartDeathOnActivate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death")
+	bool bStartDeathOnActivate = true;
+
+	/** Automatically cancel abilities on death. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death")
+	bool bCancelAbilities = true;
+
+	/** Don't cancel abilities that have any of these tags. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death", meta = (EditCondition = "bCancelAbilities"))
+	FGameplayTagContainer CancelAbilityIgnoreTags;
+
+	/** Automatically remove gameplay effects on death. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death")
+	bool bRemoveGameplayEffects = true;
+
+	/** Don't remove gameplay effects that have any of these tags. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death", meta = (EditCondition = "bRemoveGameplayEffects"))
+	FGameplayTagContainer RemoveEffectIgnoreTags;
 
 	/** Return the health component of the owning avatar. */
 	UFUNCTION(BlueprintPure, Category = "CommonAbilities|Death")

@@ -9,14 +9,16 @@
 
 
 UCommonGameplayAbility_Death::UCommonGameplayAbility_Death(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer),
-	  bStartDeathOnActivate(true)
+	: Super(ObjectInitializer)
 {
 	// it's possible that a character may die before the previous character finishes dying in some games,
 	// ensure that each pawn fully finishes their dying process.
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
 	bServerRespectsRemoteAbilityCancellation = false;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
+
+	CancelAbilityIgnoreTags = FGameplayTagContainer(ExtendedCommonAbilitiesTags::TAG_Ability_Trait_PersistOnDeath);
+	RemoveEffectIgnoreTags = FGameplayTagContainer(ExtendedCommonAbilitiesTags::TAG_Effect_Trait_PersistOnDeath);
 
 	if (HasAnyFlags(RF_ClassDefaultObject))
 	{
@@ -50,9 +52,17 @@ void UCommonGameplayAbility_Death::ActivateAbility(const FGameplayAbilitySpecHan
 {
 	UAbilitySystemComponent* AbilitySystem = ActorInfo->AbilitySystemComponent.Get();
 
-	// cancel all abilities, except those that intentionally persist, and this one
-	const FGameplayTagContainer CancelIgnoreTags(ExtendedCommonAbilitiesTags::TAG_Ability_Trait_PersistOnDeath);
-	AbilitySystem->CancelAbilities(nullptr, &CancelIgnoreTags, this);
+	if (bCancelAbilities)
+	{
+		// cancel all abilities, except those that intentionally persist, and this one
+		AbilitySystem->CancelAbilities(nullptr, &CancelAbilityIgnoreTags, this);
+	}
+
+	if (bRemoveGameplayEffects)
+	{
+		// remove gameplay effects that should not persist
+		AbilitySystem->RemoveActiveEffects(FGameplayEffectQuery::MakeQuery_MatchNoEffectTags(RemoveEffectIgnoreTags));
+	}
 
 	SetCanBeCanceled(false);
 
