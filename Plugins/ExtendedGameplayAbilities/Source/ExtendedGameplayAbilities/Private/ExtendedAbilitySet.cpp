@@ -119,6 +119,7 @@ FExtendedAbilitySetHandles UExtendedAbilitySet::GiveToAbilitySystem(UAbilitySyst
 
 void UExtendedAbilitySet::RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem,
                                                   FExtendedAbilitySetHandles& AbilitySetHandles,
+                                                  bool bEndAbilities,
                                                   bool bKeepAttributeSets) const
 {
 	check(AbilitySystem);
@@ -133,7 +134,14 @@ void UExtendedAbilitySet::RemoveFromAbilitySystem(UAbilitySystemComponent* Abili
 	{
 		if (Handle.IsValid())
 		{
-			AbilitySystem->ClearAbility(Handle);
+			if (bEndAbilities)
+			{
+				AbilitySystem->ClearAbility(Handle);
+			}
+			else
+			{
+				AbilitySystem->SetRemoveAbilityOnEnd(Handle);
+			}
 		}
 	}
 

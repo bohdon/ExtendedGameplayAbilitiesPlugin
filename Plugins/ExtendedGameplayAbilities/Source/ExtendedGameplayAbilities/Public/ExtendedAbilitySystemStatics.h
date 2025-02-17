@@ -106,11 +106,13 @@ public:
 	 * so be sure that those attributes are no longer needed before removing, or set bKeepAttributeSets to true.
 	 * @param AbilitySystem The ability system to update.
 	 * @param AbilitySetHandles The ability set handles stored from when the ability set was given.
+	 * @param bEndImmediately End and remove abilities immediately, instead of removing them after they end naturally.
 	 * @param bKeepAttributeSets Don't remove granted AttributeSets.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay Abilities")
 	static void RemoveAbilitySet(UAbilitySystemComponent* AbilitySystem,
 	                             UPARAM(ref) FExtendedAbilitySetHandles& AbilitySetHandles,
+	                             bool bEndImmediately = false,
 	                             bool bKeepAttributeSets = false);
 
 	/**

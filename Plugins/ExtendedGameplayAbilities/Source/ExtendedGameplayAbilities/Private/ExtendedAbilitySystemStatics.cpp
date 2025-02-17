@@ -154,6 +154,7 @@ FExtendedAbilitySetHandles UExtendedAbilitySystemStatics::GiveAbilitySet(UAbilit
 
 void UExtendedAbilitySystemStatics::RemoveAbilitySet(UAbilitySystemComponent* AbilitySystem,
                                                      FExtendedAbilitySetHandles& AbilitySetHandles,
+                                                     bool bEndImmediately,
                                                      bool bKeepAttributeSets)
 {
 	if (!AbilitySystem || !AbilitySetHandles.AbilitySet)
@@ -161,7 +162,7 @@ void UExtendedAbilitySystemStatics::RemoveAbilitySet(UAbilitySystemComponent* Ab
 		return;
 	}
 
-	AbilitySetHandles.AbilitySet->RemoveFromAbilitySystem(AbilitySystem, AbilitySetHandles, bKeepAttributeSets);
+	AbilitySetHandles.AbilitySet->RemoveFromAbilitySystem(AbilitySystem, AbilitySetHandles, bEndImmediately, bKeepAttributeSets);
 }
 
 void UExtendedAbilitySystemStatics::AdjustProportionalAttribute(UAbilitySystemComponent* AbilitySystem, const FGameplayAttribute& Attribute,

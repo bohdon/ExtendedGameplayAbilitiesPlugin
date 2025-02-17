@@ -150,10 +150,12 @@ public:
 	 * Remove this ability set from an ability system.
 	 * @param AbilitySystem The ability system to remove from.
 	 * @param AbilitySetHandles The handles to abilities and effects that were given in GiveToAbilitySystem.
+	 * @param bEndImmediately End and remove abilities immediately, instead of removing them after they end naturally.
 	 * @param bKeepAttributeSets If true, don't remove attribute sets (that may be needed by other effects or abilities).
 	 */
 	virtual void RemoveFromAbilitySystem(UAbilitySystemComponent* AbilitySystem,
 	                                     FExtendedAbilitySetHandles& AbilitySetHandles,
+	                                     bool bEndImmediately = false,
 	                                     bool bKeepAttributeSets = false) const;
 
 protected:
