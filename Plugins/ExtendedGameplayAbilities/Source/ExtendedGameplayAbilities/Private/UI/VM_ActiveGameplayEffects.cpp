@@ -4,6 +4,7 @@
 #include "UI/VM_ActiveGameplayEffects.h"
 
 #include "AbilitySystemComponent.h"
+#include "GameplayEffectUIData.h"
 #include "UI/VM_ActiveGameplayEffect.h"
 
 
@@ -16,13 +17,38 @@ void UVM_ActiveGameplayEffects::SetEffectQuery(const FGameplayEffectQuery& NewQu
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(EffectQuery);
 }
 
+void UVM_ActiveGameplayEffects::SetRequiredUIDataClass(TSubclassOf<UGameplayEffectUIData> NewRequireUIDataClass)
+{
+	if (RequiredUIDataClass != NewRequireUIDataClass)
+	{
+		RequiredUIDataClass = NewRequireUIDataClass;
+
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(RequiredUIDataClass);
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetActiveEffects);
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetActiveEffectViewModels);
+	}
+}
+
 TArray<FActiveGameplayEffectHandle> UVM_ActiveGameplayEffects::GetActiveEffects() const
 {
+	TArray<FActiveGameplayEffectHandle> Result;
 	if (AbilitySystem.IsValid())
 	{
-		return AbilitySystem->GetActiveEffects(EffectQuery);
+		for (FActiveGameplayEffectsContainer::ConstIterator EffectIt = AbilitySystem->GetActiveGameplayEffects().CreateConstIterator(); EffectIt; ++EffectIt)
+		{
+			const FActiveGameplayEffect& Effect = *EffectIt;
+			if (!EffectQuery.Matches(Effect))
+			{
+				continue;
+			}
+			if (RequiredUIDataClass && (!Effect.Spec.Def || !Effect.Spec.Def->FindComponent(RequiredUIDataClass)))
+			{
+				continue;
+			}
+			Result.Add(Effect.Handle);
+		}
 	}
-	return TArray<FActiveGameplayEffectHandle>();
+	return Result;
 }
 
 TArray<UVM_ActiveGameplayEffect*> UVM_ActiveGameplayEffects::GetActiveEffectViewModels() const

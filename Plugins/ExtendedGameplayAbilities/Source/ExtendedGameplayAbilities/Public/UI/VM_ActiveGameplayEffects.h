@@ -7,6 +7,7 @@
 #include "GameplayEffect.h"
 #include "VM_ActiveGameplayEffects.generated.h"
 
+class UGameplayEffectUIData;
 class UVM_ActiveGameplayEffect;
 
 
@@ -23,9 +24,16 @@ protected:
 	UPROPERTY(BlueprintReadWrite, FieldNotify, Setter)
 	FGameplayEffectQuery EffectQuery;
 
+	/** If set, only include effects that have matching a UI data component. */
+	UPROPERTY(BlueprintReadWrite, FieldNotify, Setter)
+	TSubclassOf<UGameplayEffectUIData> RequiredUIDataClass;
+
 public:
 	UFUNCTION(BlueprintSetter)
 	void SetEffectQuery(const FGameplayEffectQuery& NewQuery);
+
+	UFUNCTION(BlueprintSetter)
+	void SetRequiredUIDataClass(TSubclassOf<UGameplayEffectUIData> NewRequireUIDataClass);
 
 	/** Return all active gameplay effects. */
 	UFUNCTION(BlueprintPure, FieldNotify)

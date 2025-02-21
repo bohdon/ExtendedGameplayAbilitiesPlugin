@@ -9,6 +9,8 @@
 
 #include "VM_ActiveGameplayEffect.generated.h"
 
+class UGameplayEffectUIData;
+
 
 /**
  * A viewmodel that contains a FActiveGameplayEffectHandle, and handles binding to
@@ -28,11 +30,24 @@ protected:
 	UPROPERTY(BlueprintReadOnly, FieldNotify)
 	FGameplayEffectRemovalInfo RemovalInfo;
 
+	/** The UI data class to find when calling GetUIData. */
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Setter)
+	TSubclassOf<UGameplayEffectUIData> UIDataClass;
+
 public:
+	UVM_ActiveGameplayEffect();
+
 	UFUNCTION(BlueprintSetter)
 	void SetActiveEffectHandle(FActiveGameplayEffectHandle NewHandle);
 
 	FActiveGameplayEffectHandle GetActiveEffectHandle() const { return ActiveEffectHandle; }
+
+	UFUNCTION(BlueprintSetter)
+	void SetUIDataClass(TSubclassOf<UGameplayEffectUIData> NewUIDataClass);
+
+	/** Return UI data for the effect. */
+	UFUNCTION(BlueprintPure, FieldNotify)
+	const UGameplayEffectUIData* GetUIData() const;
 
 	UFUNCTION(BlueprintPure, FieldNotify)
 	int32 GetStackCount() const;
@@ -56,6 +71,8 @@ public:
 	float GetNormalizedTimeRemaining() const;
 
 	const FActiveGameplayEffect* GetActiveGameplayEffect() const;
+
+	FActiveGameplayEffectEvents* GetActiveEffectEventSet() const;
 
 protected:
 	void OnEffectRemoved(const FGameplayEffectRemovalInfo& InRemovalInfo);

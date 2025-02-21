@@ -5,8 +5,14 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayEffectUIData.h"
 #include "Engine/World.h"
 
+
+UVM_ActiveGameplayEffect::UVM_ActiveGameplayEffect()
+{
+	UIDataClass = UGameplayEffectUIData::StaticClass();
+}
 
 void UVM_ActiveGameplayEffect::SetActiveEffectHandle(FActiveGameplayEffectHandle NewHandle)
 {
@@ -15,29 +21,53 @@ void UVM_ActiveGameplayEffect::SetActiveEffectHandle(FActiveGameplayEffectHandle
 		return;
 	}
 
+	if (FActiveGameplayEffectEvents* EventSet = GetActiveEffectEventSet())
+	{
+		EventSet->OnEffectRemoved.RemoveAll(this);
+		EventSet->OnStackChanged.RemoveAll(this);
+		EventSet->OnTimeChanged.RemoveAll(this);
+		EventSet->OnInhibitionChanged.RemoveAll(this);
+	}
+
 	ActiveEffectHandle = NewHandle;
 	RemovalInfo = FGameplayEffectRemovalInfo();
 
-	// TODO: cleanup old bindings
-	if (const FActiveGameplayEffect* ActiveEffect = GetActiveGameplayEffect())
+	if (FActiveGameplayEffectEvents* EventSet = GetActiveEffectEventSet())
 	{
-		// ability system doesn't provide a way to get a mutable active effect,
-		// but were only binding events, not changing anything important.
-		// This is also the only way to access the OnInhibitionChanged event.
-		FActiveGameplayEffect* MutableActiveEffect = const_cast<FActiveGameplayEffect*>(ActiveEffect);
-		MutableActiveEffect->EventSet.OnEffectRemoved.AddUObject(this, &ThisClass::OnEffectRemoved);
-		MutableActiveEffect->EventSet.OnStackChanged.AddUObject(this, &ThisClass::OnEffectStackChanged);
-		MutableActiveEffect->EventSet.OnTimeChanged.AddUObject(this, &ThisClass::OnEffectTimeChanged);
-		MutableActiveEffect->EventSet.OnInhibitionChanged.AddUObject(this, &ThisClass::OnEffectInhibitionChanged);
+		EventSet->OnEffectRemoved.AddUObject(this, &ThisClass::OnEffectRemoved);
+		EventSet->OnStackChanged.AddUObject(this, &ThisClass::OnEffectStackChanged);
+		EventSet->OnTimeChanged.AddUObject(this, &ThisClass::OnEffectTimeChanged);
+		EventSet->OnInhibitionChanged.AddUObject(this, &ThisClass::OnEffectInhibitionChanged);
 	}
 
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(ActiveEffectHandle);
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetStackCount);
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetStartTime);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetDuration);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetEndTime);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetStackCount);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetStartTime);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetUIData);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsInhibited);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(RemovalInfo);
+}
+
+void UVM_ActiveGameplayEffect::SetUIDataClass(TSubclassOf<UGameplayEffectUIData> NewUIDataClass)
+{
+	if (NewUIDataClass && UIDataClass != NewUIDataClass)
+	{
+		UIDataClass = NewUIDataClass;
+
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(UIDataClass);
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetUIData);
+	}
+}
+
+const UGameplayEffectUIData* UVM_ActiveGameplayEffect::GetUIData() const
+{
+	if (const FActiveGameplayEffect* ActiveEffect = GetActiveGameplayEffect())
+	{
+		return Cast<UGameplayEffectUIData>(ActiveEffect->Spec.Def->FindComponent(UIDataClass));
+	}
+	return nullptr;
 }
 
 int32 UVM_ActiveGameplayEffect::GetStackCount() const
@@ -102,6 +132,15 @@ const FActiveGameplayEffect* UVM_ActiveGameplayEffect::GetActiveGameplayEffect()
 	if (const UAbilitySystemComponent* AbilitySystem = ActiveEffectHandle.GetOwningAbilitySystemComponent())
 	{
 		return AbilitySystem->GetActiveGameplayEffect(ActiveEffectHandle);
+	}
+	return nullptr;
+}
+
+FActiveGameplayEffectEvents* UVM_ActiveGameplayEffect::GetActiveEffectEventSet() const
+{
+	if (UAbilitySystemComponent* AbilitySystem = ActiveEffectHandle.GetOwningAbilitySystemComponent())
+	{
+		return AbilitySystem->GetActiveEffectEventSet(ActiveEffectHandle);
 	}
 	return nullptr;
 }
