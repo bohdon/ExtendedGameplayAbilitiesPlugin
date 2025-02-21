@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemViewModelBase.h"
 #include "GameplayAbilitySpec.h"
-#include "MVVMViewModelBase.h"
 #include "VM_ActivatableAbilities.generated.h"
 
 class UExtendedAbilitySystemComponent;
@@ -15,26 +15,23 @@ class UVM_GameplayAbility;
  * A view model for displaying activatable abilities of an ability system.
  * Requires an ExtendedAbilitySystemComponent.
  */
-UCLASS()
-class EXTENDEDGAMEPLAYABILITIES_API UVM_ActivatableAbilities : public UMVVMViewModelBase
+UCLASS(BlueprintType)
+class EXTENDEDGAMEPLAYABILITIES_API UVM_ActivatableAbilities : public UAbilitySystemViewModelBase
 {
 	GENERATED_BODY()
 
 protected:
-	/** The owning ability system. */
-	UPROPERTY(BlueprintReadOnly, FieldNotify)
-	TWeakObjectPtr<UExtendedAbilitySystemComponent> AbilitySystem;
-
 	/** Only include abilities that match this tag query. */
 	UPROPERTY(BlueprintReadWrite, FieldNotify, Setter)
 	FGameplayTagQuery AbilityTagQuery;
 
 public:
-	UFUNCTION(BlueprintCallable)
-	virtual void SetAbilitySystem(UExtendedAbilitySystemComponent* NewAbilitySystem);
+	UVM_ActivatableAbilities();
 
 	UFUNCTION(BlueprintSetter)
 	void SetAbilityTagQuery(const FGameplayTagQuery& NewTagQuery);
+
+	const FGameplayTagQuery& GetAbilityTagQuery() const { return AbilityTagQuery; }
 
 	/** Return ability spec handles for each activatable ability. */
 	UFUNCTION(BlueprintPure, FieldNotify)
@@ -50,8 +47,6 @@ public:
 
 	virtual bool ShouldIncludeAbility(const FGameplayAbilitySpec& AbilitySpec) const;
 
-	UExtendedAbilitySystemComponent* GetAbilitySystem() const { return AbilitySystem.Get(); }
-
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAbilitiesChangedDynDelegate);
 
 	/** Called when any ability is added or removed. */
@@ -65,6 +60,8 @@ protected:
 	 */
 	FGameplayAbilitySpecHandle AbilityBeingRemoved;
 
+	virtual void PreSystemChange() override;
+	virtual void PostSystemChange() override;
 	virtual void OnGiveAbility(FGameplayAbilitySpec& GameplayAbilitySpec);
 	virtual void OnRemoveAbility(FGameplayAbilitySpec& GameplayAbilitySpec);
 };

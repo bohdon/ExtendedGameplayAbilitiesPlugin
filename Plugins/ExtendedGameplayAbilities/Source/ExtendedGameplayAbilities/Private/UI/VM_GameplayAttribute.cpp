@@ -11,32 +11,36 @@ void UVM_GameplayAttribute::SetAttribute(FGameplayAttribute NewAttribute)
 	SetAbilitySystemAndAttribute(AbilitySystem.Get(), NewAttribute);
 }
 
-void UVM_GameplayAttribute::SetAbilitySystem(UAbilitySystemComponent* NewAbilitySystem)
-{
-	SetAbilitySystemAndAttribute(NewAbilitySystem, Attribute);
-}
-
 void UVM_GameplayAttribute::SetAbilitySystemAndAttribute(UAbilitySystemComponent* NewAbilitySystem, FGameplayAttribute NewAttribute)
 {
-	if (AbilitySystem.Get() == NewAbilitySystem && Attribute == NewAttribute)
+	if (AbilitySystem.Get() != NewAbilitySystem || Attribute != NewAttribute)
 	{
-		return;
+		PreSystemChange();
+		Attribute = NewAttribute;
+		AbilitySystem = NewAbilitySystem;
+		PostSystemChange();
 	}
+}
 
+void UVM_GameplayAttribute::PreSystemChange()
+{
 	if (AbilitySystem.IsValid() && Attribute.IsValid())
 	{
 		AbilitySystem->GetGameplayAttributeValueChangeDelegate(Attribute).RemoveAll(this);
 	}
 
-	Attribute = NewAttribute;
-	AbilitySystem = NewAbilitySystem;
+	Super::PreSystemChange();
+}
 
+void UVM_GameplayAttribute::PostSystemChange()
+{
 	if (AbilitySystem.IsValid() && Attribute.IsValid())
 	{
 		AbilitySystem->GetGameplayAttributeValueChangeDelegate(Attribute).AddUObject(this, &UVM_GameplayAttribute::OnAttributeValueChanged);
 	}
 
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(AbilitySystem);
+	Super::PostSystemChange();
+
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(Attribute);
 
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetValue);

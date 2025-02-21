@@ -5,33 +5,39 @@
 
 #include "AbilitySystemComponent.h"
 #include "ExtendedAbilitySystemComponent.h"
+#include "Logging/MessageLog.h"
 #include "UI/VM_GameplayAbility.h"
 
 
-void UVM_ActivatableAbilities::SetAbilitySystem(UExtendedAbilitySystemComponent* NewAbilitySystem)
+UVM_ActivatableAbilities::UVM_ActivatableAbilities()
 {
-	if (AbilitySystem.Get() == NewAbilitySystem)
+	RequireAbilitySystemClass = UExtendedAbilitySystemComponent::StaticClass();
+}
+
+void UVM_ActivatableAbilities::PreSystemChange()
+{
+	if (UExtendedAbilitySystemComponent* ASC = GetAbilitySystem<UExtendedAbilitySystemComponent>())
 	{
-		return;
+		ASC->OnGiveAbilityEvent.RemoveAll(this);
+		ASC->OnRemoveAbilityEvent.RemoveAll(this);
 	}
 
-	if (AbilitySystem.IsValid())
+	Super::PreSystemChange();
+}
+
+void UVM_ActivatableAbilities::PostSystemChange()
+{
+	if (UExtendedAbilitySystemComponent* ASC = GetAbilitySystem<UExtendedAbilitySystemComponent>())
 	{
-		AbilitySystem->OnGiveAbilityEvent.RemoveAll(this);
-		AbilitySystem->OnRemoveAbilityEvent.RemoveAll(this);
+		ASC->OnGiveAbilityEvent.AddUObject(this, &UVM_ActivatableAbilities::OnGiveAbility);
+		ASC->OnRemoveAbilityEvent.AddUObject(this, &UVM_ActivatableAbilities::OnRemoveAbility);
 	}
 
-	AbilitySystem = NewAbilitySystem;
+	Super::PostSystemChange();
 
-	if (AbilitySystem.IsValid())
-	{
-		AbilitySystem->OnGiveAbilityEvent.AddUObject(this, &UVM_ActivatableAbilities::OnGiveAbility);
-		AbilitySystem->OnRemoveAbilityEvent.AddUObject(this, &UVM_ActivatableAbilities::OnRemoveAbility);
-	}
-
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(AbilitySystem);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilitySpecHandles);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilityViewModels);
+
 	OnAbilitiesChangedEvent.Broadcast();
 }
 
@@ -74,9 +80,8 @@ TArray<FGameplayAbilitySpecHandle> UVM_ActivatableAbilities::GetAbilitySpecHandl
 TArray<UVM_GameplayAbility*> UVM_ActivatableAbilities::GetAbilityViewModels() const
 {
 	TArray<UVM_GameplayAbility*> Result;
-	if (AbilitySystem.IsValid())
+	if (UAbilitySystemComponent* ASC = AbilitySystem.Get())
 	{
-		UExtendedAbilitySystemComponent* ASC = AbilitySystem.Get();
 		UVM_ActivatableAbilities* MutableThis = const_cast<UVM_ActivatableAbilities*>(this);
 
 		Result.Reserve(ASC->GetActivatableAbilities().Num());
@@ -84,7 +89,7 @@ TArray<UVM_GameplayAbility*> UVM_ActivatableAbilities::GetAbilityViewModels() co
 		{
 			if (ShouldIncludeAbility(AbilitySpec))
 			{
-				UVM_GameplayAbility* AbilityViewModel = NewObject<UVM_GameplayAbility>(MutableThis);
+				UVM_GameplayAbility* AbilityViewModel = NewObject<UVM_GameplayAbility>(MutableThis, NAME_None, RF_Transient);
 				AbilityViewModel->SetAbilitySystemAndSpecHandle(ASC, AbilitySpec.Handle);
 				Result.Add(AbilityViewModel);
 			}

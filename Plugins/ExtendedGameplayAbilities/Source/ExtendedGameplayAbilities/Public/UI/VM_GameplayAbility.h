@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemViewModelBase.h"
 #include "GameplayAbilitySpecHandle.h"
 #include "GameplayTagContainer.h"
-#include "MVVMViewModelBase.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "VM_GameplayAbility.generated.h"
 
@@ -17,8 +17,8 @@ struct FGameplayAbilitySpec;
 /**
  * A view model representing a gameplay ability granted to an ability system.
  */
-UCLASS()
-class EXTENDEDGAMEPLAYABILITIES_API UVM_GameplayAbility : public UMVVMViewModelBase
+UCLASS(BlueprintType)
+class EXTENDEDGAMEPLAYABILITIES_API UVM_GameplayAbility : public UAbilitySystemViewModelBase
 {
 	GENERATED_BODY()
 
@@ -26,18 +26,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, FieldNotify, Setter)
 	FGameplayAbilitySpecHandle AbilitySpecHandle;
 
-	/** The owning ability system. */
-	UPROPERTY(BlueprintReadOnly, FieldNotify)
-	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystem;
-
 public:
 	UFUNCTION(BlueprintSetter)
 	virtual void SetAbilitySpecHandle(FGameplayAbilitySpecHandle NewAbilitySpecHandle);
-
-	UFUNCTION(BlueprintCallable)
-	virtual void SetAbilitySystem(UAbilitySystemComponent* NewAbilitySystem);
-
-	UAbilitySystemComponent* GetAbilitySystem() const { return AbilitySystem.Get(); }
 
 	UFUNCTION(BlueprintCallable)
 	virtual void SetAbilitySystemAndSpecHandle(UAbilitySystemComponent* NewAbilitySystem, FGameplayAbilitySpecHandle NewAbilitySpecHandle);
@@ -90,6 +81,8 @@ protected:
 	 */
 	bool bIsActivating = false;
 
+	virtual void PreSystemChange() override;
+	virtual void PostSystemChange() override;
 	virtual void OnAnyAbilityActivated(UGameplayAbility* GameplayAbility);
 	virtual void OnAnyAbilityEnded(const FAbilityEndedData& AbilityEndedData);
 	virtual void OnCooldownTagChanged(FGameplayTag GameplayTag, int32 NewCount);

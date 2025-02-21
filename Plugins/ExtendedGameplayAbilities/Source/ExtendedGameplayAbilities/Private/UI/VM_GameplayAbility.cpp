@@ -11,49 +11,55 @@ void UVM_GameplayAbility::SetAbilitySpecHandle(FGameplayAbilitySpecHandle NewAbi
 	SetAbilitySystemAndSpecHandle(AbilitySystem.Get(), NewAbilitySpecHandle);
 }
 
-void UVM_GameplayAbility::SetAbilitySystem(UAbilitySystemComponent* NewAbilitySystem)
-{
-	SetAbilitySystemAndSpecHandle(NewAbilitySystem, AbilitySpecHandle);
-}
-
 void UVM_GameplayAbility::SetAbilitySystemAndSpecHandle(UAbilitySystemComponent* NewAbilitySystem, FGameplayAbilitySpecHandle NewAbilitySpecHandle)
 {
-	if (AbilitySystem.Get() == NewAbilitySystem && AbilitySpecHandle == NewAbilitySpecHandle)
+	if (AbilitySystem.Get() != NewAbilitySystem || AbilitySpecHandle != NewAbilitySpecHandle)
 	{
-		return;
+		PreSystemChange();
+		AbilitySystem = NewAbilitySystem;
+		AbilitySpecHandle = NewAbilitySpecHandle;
+		PostSystemChange();
 	}
+}
 
-	if (AbilitySystem.IsValid())
+void UVM_GameplayAbility::PreSystemChange()
+{
+	if (UAbilitySystemComponent* ASC = AbilitySystem.Get())
 	{
-		AbilitySystem->AbilityActivatedCallbacks.RemoveAll(this);
-		AbilitySystem->OnAbilityEnded.RemoveAll(this);
-		AbilitySystem->OnActiveGameplayEffectAddedDelegateToSelf.RemoveAll(this);
+		ASC->AbilityActivatedCallbacks.RemoveAll(this);
+		ASC->OnAbilityEnded.RemoveAll(this);
+		ASC->OnActiveGameplayEffectAddedDelegateToSelf.RemoveAll(this);
 		for (const FGameplayTag& CooldownTag : RegisteredCooldownTags)
 		{
-			AbilitySystem->RegisterGameplayTagEvent(CooldownTag).RemoveAll(this);
+			ASC->RegisterGameplayTagEvent(CooldownTag).RemoveAll(this);
 		}
 	}
+	RegisteredCooldownTags.Reset();
 
-	AbilitySystem = NewAbilitySystem;
-	AbilitySpecHandle = NewAbilitySpecHandle;
+	Super::PreSystemChange();
+}
 
-	if (AbilitySystem.IsValid())
+void UVM_GameplayAbility::PostSystemChange()
+{
+	// these bindings are specific to the current ability spec handle, not just the ability system
+	if (UAbilitySystemComponent* ASC = AbilitySystem.Get())
 	{
 		// listen for ability activation
-		AbilitySystem->AbilityActivatedCallbacks.AddUObject(this, &UVM_GameplayAbility::OnAnyAbilityActivated);
-		AbilitySystem->OnAbilityEnded.AddUObject(this, &UVM_GameplayAbility::OnAnyAbilityEnded);
+		ASC->AbilityActivatedCallbacks.AddUObject(this, &UVM_GameplayAbility::OnAnyAbilityActivated);
+		ASC->OnAbilityEnded.AddUObject(this, &UVM_GameplayAbility::OnAnyAbilityEnded);
 		// listen for cooldown effects being applied
-		AbilitySystem->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &UVM_GameplayAbility::OnActiveGameplayEffectAdded);
+		ASC->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &UVM_GameplayAbility::OnActiveGameplayEffectAdded);
 		// listen for cooldown tags to update IsOnCooldown
 		RegisteredCooldownTags = GetCooldownTags();
 		for (const FGameplayTag& CooldownTag : RegisteredCooldownTags)
 		{
-			AbilitySystem->RegisterGameplayTagEvent(CooldownTag).AddUObject(this, &UVM_GameplayAbility::OnCooldownTagChanged);
+			ASC->RegisterGameplayTagEvent(CooldownTag).AddUObject(this, &UVM_GameplayAbility::OnCooldownTagChanged);
 		}
 	}
 
+	Super::PostSystemChange();
+
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(AbilitySpecHandle);
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(AbilitySystem);
 
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilityCDO);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilityClass);

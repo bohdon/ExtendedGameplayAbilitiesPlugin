@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemViewModelBase.h"
 #include "AttributeSet.h"
 #include "GameplayEffectTypes.h"
-#include "MVVMViewModelBase.h"
 #include "VM_GameplayAttribute.generated.h"
 
 
@@ -13,7 +13,7 @@
  * A viewmodel for displaying a gameplay attribute for an ability system.
  */
 UCLASS(BlueprintType)
-class EXTENDEDGAMEPLAYABILITIES_API UVM_GameplayAttribute : public UMVVMViewModelBase
+class EXTENDEDGAMEPLAYABILITIES_API UVM_GameplayAttribute : public UAbilitySystemViewModelBase
 {
 	GENERATED_BODY()
 
@@ -22,21 +22,12 @@ protected:
 	UPROPERTY(BlueprintReadWrite, FieldNotify, Setter)
 	FGameplayAttribute Attribute;
 
-	/** The owning ability system. */
-	UPROPERTY(BlueprintReadOnly, FieldNotify)
-	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystem;
-
 public:
 	UFUNCTION(BlueprintSetter)
 	void SetAttribute(FGameplayAttribute NewAttribute);
 
 	UFUNCTION(BlueprintCallable)
-	void SetAbilitySystem(UAbilitySystemComponent* NewAbilitySystem);
-
-	UFUNCTION(BlueprintCallable)
 	void SetAbilitySystemAndAttribute(UAbilitySystemComponent* NewAbilitySystem, FGameplayAttribute NewAttribute);
-
-	UAbilitySystemComponent* GetAbilitySystem() const { return AbilitySystem.Get(); }
 
 	FGameplayAttribute GetAttribute() const { return Attribute; }
 
@@ -44,5 +35,7 @@ public:
 	float GetValue() const;
 
 protected:
+	virtual void PreSystemChange() override;
+	virtual void PostSystemChange() override;
 	virtual void OnAttributeValueChanged(const FOnAttributeChangeData& ChangeData);
 };
