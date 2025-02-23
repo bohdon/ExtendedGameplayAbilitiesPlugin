@@ -14,9 +14,10 @@ Extends the ability system with some important core features for making out of t
 - Ability Sets - Improved ability sets that support abilities, effects, and attribute sets.
 - Gameplay Tag Anim Notify State - Apply gameplay tags via anim notify states for timed states.
 - Startup Ability Sets - Define abilities, effects, and attributes that should be granted by default per ability system.
+- Targeting actor that enables using `WaitTargetData` in combination with the `TargetingSubsystem` and presets.
 - Behavior Tree AI tasks for activating and cancelling abilities.
 - `UAbilityGamePhaseComponent` and `UGamePhaseAbility` for handling various game phases like pre and post game.
-- MVVM view models for activate gameplay effects.
+- MVVM view models for abilities and effects, and lists of either.
 
 
 ## ExtendedCommonAbilities
