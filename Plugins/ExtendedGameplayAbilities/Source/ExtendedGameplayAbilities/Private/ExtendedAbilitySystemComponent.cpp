@@ -3,6 +3,7 @@
 #include "ExtendedAbilitySystemComponent.h"
 
 #include "ExtendedAbilitySet.h"
+#include "ExtendedAbilityTagRelationshipMapping.h"
 
 
 UExtendedAbilitySystemComponent::UExtendedAbilitySystemComponent(const FObjectInitializer& ObjectInitializer)
@@ -80,6 +81,33 @@ void UExtendedAbilitySystemComponent::OnRemoveAbility(FGameplayAbilitySpec& Abil
 	if (AbilitySpec.Ability)
 	{
 		OnRemoveAbilityEvent.Broadcast(AbilitySpec);
+	}
+}
+
+void UExtendedAbilitySystemComponent::ApplyAbilityBlockAndCancelTags(const FGameplayTagContainer& AbilityTags, UGameplayAbility* RequestingAbility,
+                                                                     bool bEnableBlockTags, const FGameplayTagContainer& BlockTags,
+                                                                     bool bExecuteCancelTags, const FGameplayTagContainer& CancelTags)
+{
+	if (AbilityTagRelationshipMapping)
+	{
+		FGameplayTagContainer ModifiedBlockTags = BlockTags;
+		FGameplayTagContainer ModifiedCancelTags = CancelTags;
+		AbilityTagRelationshipMapping->GetAbilityTagsToBlockAndCancel(AbilityTags, ModifiedBlockTags, ModifiedCancelTags);
+		Super::ApplyAbilityBlockAndCancelTags(AbilityTags, RequestingAbility, bEnableBlockTags, ModifiedBlockTags, bExecuteCancelTags, ModifiedCancelTags);
+	}
+	else
+	{
+		Super::ApplyAbilityBlockAndCancelTags(AbilityTags, RequestingAbility, bEnableBlockTags, BlockTags, bExecuteCancelTags, CancelTags);
+	}
+}
+
+void UExtendedAbilitySystemComponent::GetAdditionalActivationTagRequirements(const FGameplayTagContainer& AbilityTags,
+                                                                             FGameplayTagContainer& OutRequiredTags,
+                                                                             FGameplayTagContainer& OutBlockedTags) const
+{
+	if (AbilityTagRelationshipMapping)
+	{
+		AbilityTagRelationshipMapping->GetAbilityActivationTagRequirements(AbilityTags, OutRequiredTags, OutBlockedTags);
 	}
 }
 

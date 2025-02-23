@@ -8,6 +8,7 @@
 #include "ExtendedAbilitySystemComponent.generated.h"
 
 class UExtendedAbilitySet;
+class UExtendedAbilityTagRelationshipMapping;
 
 
 /**
@@ -29,6 +30,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defaults")
 	TArray<TObjectPtr<UExtendedAbilitySet>> StartupAbilitySets;
 
+	/** Mapping that defines additional relationships for how abilities block or cancel other abilities. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
+	TObjectPtr<UExtendedAbilityTagRelationshipMapping> AbilityTagRelationshipMapping;
+
 	/**
 	 * Create and return an effect spec set.
 	 * The spec set can then be applied using ApplyEffectContainerToSelf on this or another ability system.
@@ -46,6 +51,14 @@ public:
 	virtual void InitializeComponent() override;
 	virtual void OnGiveAbility(FGameplayAbilitySpec& AbilitySpec) override;
 	virtual void OnRemoveAbility(FGameplayAbilitySpec& AbilitySpec) override;
+	virtual void ApplyAbilityBlockAndCancelTags(const FGameplayTagContainer& AbilityTags, UGameplayAbility* RequestingAbility,
+	                                            bool bEnableBlockTags, const FGameplayTagContainer& BlockTags,
+	                                            bool bExecuteCancelTags, const FGameplayTagContainer& CancelTags) override;
+
+	/** Get any additional required and blocked tags needed for ability activation. */
+	virtual void GetAdditionalActivationTagRequirements(const FGameplayTagContainer& AbilityTags,
+														FGameplayTagContainer& OutRequiredTags,
+														FGameplayTagContainer& OutBlockedTags) const;
 
 	/** Called when ability input has been pressed by tag. */
 	void AbilityTagInputPressed(const FGameplayTag& InputTag);

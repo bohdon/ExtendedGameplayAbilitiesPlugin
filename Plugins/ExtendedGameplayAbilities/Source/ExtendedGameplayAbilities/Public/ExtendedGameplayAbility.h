@@ -89,6 +89,10 @@ public:
 	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	                           const FGameplayAbilityActivationInfo ActivationInfo) const override;
 
+	virtual bool DoesAbilitySatisfyTagRequirements(const UAbilitySystemComponent& AbilitySystemComponent,
+	                                               const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr,
+	                                               FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
 	/** Called when the avatar of the owning ability system has been set. */
