@@ -3,51 +3,17 @@
 
 #include "StaminaAttributeSet.h"
 
+#include "AbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UStaminaAttributeSet::UStaminaAttributeSet()
 {
-	InitStamina(100.f);
-	InitMaxStamina(100.f);
-	InitStaminaRegen(25.f);
-}
+	InitAttribute(Stamina, 100.f);
+	InitAttribute(MaxStamina, 100.f);
+	InitAttribute(StaminaRegen, 25.f);
 
-void UStaminaAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
-{
-	if (Attribute == GetStaminaAttribute())
-	{
-		// clamp to Max
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxStamina());
-	}
-	else if (Attribute == GetMaxStaminaAttribute())
-	{
-		// always keep Max rounded and >= 1
-		NewValue = FMath::RoundFromZero(FMath::Max(NewValue, 1.f));
-	}
-}
-
-void UStaminaAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
-{
-	// apply clamping to base values
-	ClampAttribute(Attribute, NewValue);
-}
-
-void UStaminaAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
-{
-	// also apply clamping to current values (changed by temporary modifiers)
-	ClampAttribute(Attribute, NewValue);
-}
-
-void UStaminaAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
-{
-	if (Attribute == GetMaxStaminaAttribute())
-	{
-		// just clamp down, don't increase proportionally
-		if (NewValue < GetStamina())
-		{
-			SetStamina(NewValue);
-		}
-	}
+	SetMaxAttribute(GetStaminaAttribute(), GetMaxStaminaAttribute(), false);
+	SetAttributeValueRange(GetMaxStaminaAttribute(), 1, FLT_MAX);
 }
 
 void UStaminaAttributeSet::OnRep_Stamina(FGameplayAttributeData& OldValue)
@@ -64,7 +30,6 @@ void UStaminaAttributeSet::OnRep_StaminaRegen(FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UStaminaAttributeSet, StaminaRegen, OldValue);
 }
-
 
 void UStaminaAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

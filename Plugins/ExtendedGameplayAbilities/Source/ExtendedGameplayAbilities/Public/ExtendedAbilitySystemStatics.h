@@ -119,16 +119,19 @@ public:
 	 * Change an attribute proportionally based on the change to another attribute.
 	 * This is useful for example if MaxHP increases or decreases, and you want HP to remain the same % of MaxHP as it was before the change.
 	 * Intended to be called in UAttributeSet::PostAttributeChange when the max attribute has changed.
-	 * @param AbilitySystem The ability system where the attribute exists.
+	 * @param AttributeSet The attribute set containing the attribute.
 	 * @param Attribute The attribute whose value will be adjusted.
 	 * @param OldRelatedValue The old value of the related attribute
 	 * @param NewRelatedValue The new value of the related attribute
 	 * @param bRound Round the value to an integer.
 	 * @param bClamp Clamp the value to not exceed the new related attribute's value.
 	 */
-	static void AdjustProportionalAttribute(UAbilitySystemComponent* AbilitySystem, const FGameplayAttribute& Attribute,
+	static void AdjustProportionalAttribute(UAttributeSet* AttributeSet, const FGameplayAttribute& Attribute,
 	                                        float OldRelatedValue, float NewRelatedValue,
 	                                        bool bRound = true, bool bClamp = true);
+
+	/** Return the base value for an attribute using an attribute set. */
+	static float GetNumericAttributeBase(const UAttributeSet* AttributeSet, const FGameplayAttribute& Attribute);
 
 	/**
 	 * Return the value of a data registry curve at an input time/level/value.

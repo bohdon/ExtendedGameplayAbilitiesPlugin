@@ -3,51 +3,21 @@
 
 #include "HPAttributeSet.h"
 
-#include "ExtendedAbilitySystemStatics.h"
+#include "AbilitySystemComponent.h"
 #include "ExtendedCommonAbilitiesTags.h"
+#include "GameplayEffect.h"
 #include "GameplayEffectExtension.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "Net/UnrealNetwork.h"
 
 
 UHPAttributeSet::UHPAttributeSet()
 {
-	InitHP(100);
-	InitMaxHP(100);
-}
+	InitAttribute(HP, 100.f);
+	InitAttribute(MaxHP, 100.f);
 
-void UHPAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
-{
-	if (Attribute == GetHPAttribute())
-	{
-		// clamp to Max HP
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHP());
-	}
-	else if (Attribute == GetMaxHPAttribute())
-	{
-		// always keep Max HP rounded and >= 1
-		NewValue = FMath::RoundFromZero(FMath::Max(NewValue, 1.f));
-	}
-}
-
-void UHPAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
-{
-	// apply clamping to base values
-	ClampAttribute(Attribute, NewValue);
-}
-
-void UHPAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
-{
-	// also apply clamping to current values (changed by temporary modifiers)
-	ClampAttribute(Attribute, NewValue);
-}
-
-void UHPAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
-{
-	if (Attribute == GetMaxHPAttribute())
-	{
-		// if MaxHP changes, increase/decrease HP to keep the same proportion (e.g. 80% of max)
-		UExtendedAbilitySystemStatics::AdjustProportionalAttribute(GetOwningAbilitySystemComponent(), GetHPAttribute(), OldValue, NewValue, true);
-	}
+	SetMaxAttribute(GetHPAttribute(), GetMaxHPAttribute(), true);
+	SetAttributeValueRange(GetMaxHPAttribute(), 1.f, FLT_MAX);
 }
 
 void UHPAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)

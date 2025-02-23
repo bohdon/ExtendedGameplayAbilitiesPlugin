@@ -165,15 +165,15 @@ void UExtendedAbilitySystemStatics::RemoveAbilitySet(UAbilitySystemComponent* Ab
 	AbilitySetHandles.AbilitySet->RemoveFromAbilitySystem(AbilitySystem, AbilitySetHandles, bEndImmediately, bKeepAttributeSets);
 }
 
-void UExtendedAbilitySystemStatics::AdjustProportionalAttribute(UAbilitySystemComponent* AbilitySystem, const FGameplayAttribute& Attribute,
+void UExtendedAbilitySystemStatics::AdjustProportionalAttribute(UAttributeSet* AttributeSet, const FGameplayAttribute& Attribute,
                                                                 float OldRelatedValue, float NewRelatedValue, bool bRound, bool bClamp)
 {
-	if (!AbilitySystem || FMath::IsNearlyEqual(OldRelatedValue, NewRelatedValue))
+	if (!AttributeSet || FMath::IsNearlyEqual(OldRelatedValue, NewRelatedValue))
 	{
 		return;
 	}
 
-	const float CurrentValue = AbilitySystem->GetNumericAttributeBase(Attribute);
+	const float CurrentValue = GetNumericAttributeBase(AttributeSet, Attribute);
 
 	float NewValue = OldRelatedValue > 0.f ? CurrentValue * (NewRelatedValue / OldRelatedValue) : NewRelatedValue;
 
@@ -187,7 +187,29 @@ void UExtendedAbilitySystemStatics::AdjustProportionalAttribute(UAbilitySystemCo
 		NewValue = FMath::Min(NewValue, NewRelatedValue);
 	}
 
-	AbilitySystem->SetNumericAttributeBase(Attribute, NewValue);
+	if (UAbilitySystemComponent* AbilitySystem = AttributeSet->GetOwningAbilitySystemComponent())
+	{
+		AbilitySystem->SetNumericAttributeBase(Attribute, NewValue);
+	}
+}
+
+float UExtendedAbilitySystemStatics::GetNumericAttributeBase(const UAttributeSet* AttributeSet, const FGameplayAttribute& Attribute)
+{
+	FProperty* Property = Attribute.GetUProperty();
+
+	if (FGameplayAttribute::IsGameplayAttributeDataProperty(Property))
+	{
+		const FStructProperty* StructProperty = CastField<FStructProperty>(Property);
+		check(StructProperty);
+		const FGameplayAttributeData* DataPtr = StructProperty->ContainerPtrToValuePtr<FGameplayAttributeData>(AttributeSet);
+		if (ensure(DataPtr))
+		{
+			return DataPtr->GetBaseValue();
+		}
+	}
+
+	// otherwise it's a float property, just get the current value
+	return Attribute.GetNumericValue(AttributeSet);
 }
 
 float UExtendedAbilitySystemStatics::GetDataRegistryValue(FDataRegistryId Id, float InputValue, float DefaultValue)

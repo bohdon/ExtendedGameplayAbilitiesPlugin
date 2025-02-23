@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AttributeSet.h"
+#include "ExtendedAttributeSet.h"
 #include "ExtendedGameplayAttributeAccessors.h"
 #include "HPRegenAttributeSet.generated.h"
 
@@ -12,7 +12,7 @@
  * Attribute set for automatic health regeneration.
  */
 UCLASS()
-class ABILITIESSAMPLE_API UHPRegenAttributeSet : public UAttributeSet
+class ABILITIESSAMPLE_API UHPRegenAttributeSet : public UExtendedAttributeSet
 {
 	GENERATED_BODY()
 

@@ -3,12 +3,13 @@
 
 #include "HPRegenAttributeSet.h"
 
+#include "AbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
 
 UHPRegenAttributeSet::UHPRegenAttributeSet()
 {
-	InitHPRegen(0.f);
+	InitAttribute(HPRegen, 0.f);
 }
 
 void UHPRegenAttributeSet::OnRep_HPRegen(FGameplayAttributeData& OldValue)
