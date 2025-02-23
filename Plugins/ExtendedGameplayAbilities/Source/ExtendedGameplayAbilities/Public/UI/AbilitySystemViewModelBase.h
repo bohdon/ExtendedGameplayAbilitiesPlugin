@@ -16,14 +16,14 @@ class UAbilitySystemComponent;
  * Subclasses should implement PreSystemChange and PostSystemChange to unbind/bind relevant events,
  * as well as call those methods before and after changing other properties that affect the bindings.
  */
-UCLASS(Abstract, BlueprintType)
+UCLASS(BlueprintType)
 class EXTENDEDGAMEPLAYABILITIES_API UAbilitySystemViewModelBase : public UMVVMViewModelBase
 {
 	GENERATED_BODY()
 
 protected:
 	/** The owning ability system. */
-	UPROPERTY(BlueprintReadOnly, FieldNotify)
+	UPROPERTY()
 	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystem;
 
 	/**
@@ -37,6 +37,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetAbilitySystem(UAbilitySystemComponent* NewAbilitySystem);
 
+	UFUNCTION(BlueprintPure, FieldNotify)
 	UAbilitySystemComponent* GetAbilitySystem() const { return AbilitySystem.Get(); }
 
 	template <class T>

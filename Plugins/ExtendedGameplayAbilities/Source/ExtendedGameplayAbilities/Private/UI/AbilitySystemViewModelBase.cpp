@@ -41,7 +41,7 @@ void UAbilitySystemViewModelBase::PreSystemChange()
 
 void UAbilitySystemViewModelBase::PostSystemChange()
 {
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(AbilitySystem);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilitySystem);
 }
 
 #undef LOCTEXT_NAMESPACE
