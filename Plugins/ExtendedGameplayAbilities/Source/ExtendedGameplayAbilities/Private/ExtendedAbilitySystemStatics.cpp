@@ -21,10 +21,33 @@ FGameplayEffectSpecSet UExtendedAbilitySystemStatics::AssignTagSetByCallerMagnit
 {
 	for (FGameplayEffectSpecHandle SpecHandle : EffectSpecSet.EffectSpecs)
 	{
-		FGameplayEffectSpec* Spec = SpecHandle.Data.Get();
-		if (Spec)
+		if (FGameplayEffectSpec* Spec = SpecHandle.Data.Get())
 		{
 			Spec->SetSetByCallerMagnitude(DataTag, Magnitude);
+		}
+	}
+	return EffectSpecSet;
+}
+
+FGameplayEffectSpecSet UExtendedAbilitySystemStatics::AddContextHitResultForSet(FGameplayEffectSpecSet EffectSpecSet, FHitResult HitResult, bool bReset)
+{
+	for (FGameplayEffectSpecHandle SpecHandle : EffectSpecSet.EffectSpecs)
+	{
+		if (FGameplayEffectSpec* Spec = SpecHandle.Data.Get())
+		{
+			Spec->GetContext().AddHitResult(HitResult, bReset);
+		}
+	}
+	return EffectSpecSet;
+}
+
+FGameplayEffectSpecSet UExtendedAbilitySystemStatics::SetContextOriginForSet(FGameplayEffectSpecSet EffectSpecSet, FVector Origin)
+{
+	for (FGameplayEffectSpecHandle SpecHandle : EffectSpecSet.EffectSpecs)
+	{
+		if (FGameplayEffectSpec* Spec = SpecHandle.Data.Get())
+		{
+			Spec->GetContext().AddOrigin(Origin);
 		}
 	}
 	return EffectSpecSet;

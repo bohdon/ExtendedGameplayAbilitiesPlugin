@@ -30,6 +30,14 @@ public:
 	UFUNCTION(BlueprintCallable, Meta = (DisplayName = "Assign Tag Set By Caller Magnitude (For Set)"), Category = "Ability|GameplayEffect")
 	static FGameplayEffectSpecSet AssignTagSetByCallerMagnitudeForSet(FGameplayEffectSpecSet EffectSpecSet, FGameplayTag DataTag, float Magnitude);
 
+	/** Add a hit result to the context for all effects in a set. */
+	UFUNCTION(BlueprintCallable, Meta = (DisplayName = "Add Context Hit Result (For Set)"), Category = "Ability|GameplayEffect")
+	static FGameplayEffectSpecSet AddContextHitResultForSet(FGameplayEffectSpecSet EffectSpecSet, FHitResult HitResult, bool bReset);
+
+	/** Set the origin of the context for all effects in a set. */
+	UFUNCTION(BlueprintCallable, Meta = (DisplayName = "Set Context Origin (For Set)"), Category = "Ability|GameplayEffect")
+	static FGameplayEffectSpecSet SetContextOriginForSet(FGameplayEffectSpecSet EffectSpecSet, FVector Origin);
+
 	/**
 	 * Apply a gameplay effect spec set to an actor, if it has an ability system.
 	 * @param Actor The actor to apply effects to.
