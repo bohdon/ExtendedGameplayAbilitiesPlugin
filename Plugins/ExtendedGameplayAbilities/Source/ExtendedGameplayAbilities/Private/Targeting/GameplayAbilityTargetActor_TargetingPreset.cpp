@@ -108,7 +108,8 @@ void AGameplayAbilityTargetActor_TargetingPreset::EndPlay(const EEndPlayReason::
 	{
 		if (TargetingHandle.IsValid())
 		{
-			UTargetingSubsystem::ReleaseTargetRequestHandle(TargetingHandle);
+			UTargetingSubsystem* TargetingSubsystem = GetGameInstance()->GetSubsystem<UTargetingSubsystem>();
+			TargetingSubsystem->RemoveAsyncTargetingRequestWithHandle(TargetingHandle);
 		}
 	}
 
