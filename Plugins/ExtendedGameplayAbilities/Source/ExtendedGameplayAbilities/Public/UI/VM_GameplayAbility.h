@@ -40,11 +40,19 @@ public:
 	UFUNCTION(BlueprintPure, FieldNotify)
 	bool IsActive() const;
 
+	/** Can the ability be activated? */
+	UFUNCTION(BlueprintPure, FieldNotify)
+	bool CanActivate() const;
+
 	UFUNCTION(BlueprintPure, FieldNotify)
 	bool IsOnCooldown() const;
 
 	UFUNCTION(BlueprintPure, FieldNotify)
 	FGameplayTagContainer GetCooldownTags() const;
+
+	/** Return all gameplay attributes that are used in the abilities Cost effect. */
+	UFUNCTION(BlueprintPure, FieldNotify)
+	TArray<FGameplayAttribute> GetCostAttributes() const;
 
 	/**
 	 * Get the currently active cooldown gameplay effect for this ability, if any.
@@ -75,6 +83,9 @@ protected:
 	/** Cooldown tags that were registered for change events. */
 	FGameplayTagContainer RegisteredCooldownTags;
 
+	/** Cost attributes that were registered for change events. */
+	TArray<FGameplayAttribute> RegisteredCostAttributes;
+
 	/**
 	 * True during OnAnyAbilityActivated, and used by IsActive to temporarily return true,
 	 * since the ability spec ActiveCount isn't updated until after that event.
@@ -85,7 +96,9 @@ protected:
 	virtual void PostSystemChange() override;
 	virtual void OnAnyAbilityActivated(UGameplayAbility* GameplayAbility);
 	virtual void OnAnyAbilityEnded(const FAbilityEndedData& AbilityEndedData);
+	virtual void OnCostAttributeChanged(const FOnAttributeChangeData& AttributeChangeData);
 	virtual void OnCooldownTagChanged(FGameplayTag GameplayTag, int32 NewCount);
+	virtual void OnAnyTagChanged(FGameplayTag GameplayTag, int32 NewCount);
 	virtual void OnActiveGameplayEffectAdded(UAbilitySystemComponent* AbilitySystemComponent,
 	                                         const FGameplayEffectSpec& GameplayEffectSpec,
 	                                         FActiveGameplayEffectHandle ActiveGameplayEffectHandle);

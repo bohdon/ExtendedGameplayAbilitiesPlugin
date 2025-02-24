@@ -29,11 +29,19 @@ void UVM_GameplayAbility::PreSystemChange()
 		ASC->AbilityActivatedCallbacks.RemoveAll(this);
 		ASC->OnAbilityEnded.RemoveAll(this);
 		ASC->OnActiveGameplayEffectAddedDelegateToSelf.RemoveAll(this);
+		ASC->RegisterGenericGameplayTagEvent().RemoveAll(this);
+
+		for (const FGameplayAttribute& Attribute : RegisteredCostAttributes)
+		{
+			ASC->GetGameplayAttributeValueChangeDelegate(Attribute).RemoveAll(this);
+		}
+
 		for (const FGameplayTag& CooldownTag : RegisteredCooldownTags)
 		{
 			ASC->RegisterGameplayTagEvent(CooldownTag).RemoveAll(this);
 		}
 	}
+	RegisteredCostAttributes.Reset();
 	RegisteredCooldownTags.Reset();
 
 	Super::PreSystemChange();
@@ -49,6 +57,16 @@ void UVM_GameplayAbility::PostSystemChange()
 		ASC->OnAbilityEnded.AddUObject(this, &UVM_GameplayAbility::OnAnyAbilityEnded);
 		// listen for cooldown effects being applied
 		ASC->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &UVM_GameplayAbility::OnActiveGameplayEffectAdded);
+		// listen for any tag change for CanActivate
+		ASC->RegisterGenericGameplayTagEvent().AddUObject(this, &UVM_GameplayAbility::OnAnyTagChanged);
+
+		// listen for cost attribute changes for CanActivate
+		RegisteredCostAttributes = GetCostAttributes();
+		for (const FGameplayAttribute& Attribute : GetCostAttributes())
+		{
+			ASC->GetGameplayAttributeValueChangeDelegate(Attribute).AddUObject(this, &UVM_GameplayAbility::OnCostAttributeChanged);
+		}
+
 		// listen for cooldown tags to update IsOnCooldown
 		RegisteredCooldownTags = GetCooldownTags();
 		for (const FGameplayTag& CooldownTag : RegisteredCooldownTags)
@@ -61,10 +79,12 @@ void UVM_GameplayAbility::PostSystemChange()
 
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(AbilitySpecHandle);
 
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CanActivate);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilityCDO);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetAbilityClass);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetActiveCooldownEffect);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetCooldownTags);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetCostAttributes);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(HasAbility);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsActive);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsOnCooldown);
@@ -84,6 +104,23 @@ bool UVM_GameplayAbility::IsActive() const
 	if (FGameplayAbilitySpec* AbilitySpec = GetAbilitySpec())
 	{
 		return AbilitySpec->IsActive();
+	}
+	return false;
+}
+
+bool UVM_GameplayAbility::CanActivate() const
+{
+	FGameplayAbilitySpec* AbilitySpec = GetAbilitySpec();
+	if (AbilitySpec && AbilitySpec->Ability)
+	{
+		// use the instanced ability if InstancedPerActor
+		const UGameplayAbility* AbilitySource = AbilitySpec->Ability->GetInstancingPolicy() == EGameplayAbilityInstancingPolicy::InstancedPerActor
+			                                        ? AbilitySpec->GetPrimaryInstance()
+			                                        : AbilitySpec->Ability.Get();
+		if (AbilitySource)
+		{
+			return AbilitySource->CanActivateAbility(AbilitySpec->Handle, AbilitySystem->AbilityActorInfo.Get());
+		}
 	}
 	return false;
 }
@@ -112,6 +149,26 @@ FGameplayTagContainer UVM_GameplayAbility::GetCooldownTags() const
 		}
 	}
 	return FGameplayTagContainer();
+}
+
+TArray<FGameplayAttribute> UVM_GameplayAbility::GetCostAttributes() const
+{
+	TArray<FGameplayAttribute> Result;
+	const FGameplayAbilitySpec* AbilitySpec = GetAbilitySpec();
+	if (AbilitySpec && AbilitySpec->Ability)
+	{
+		if (UGameplayEffect* CostGE = AbilitySpec->Ability->GetCostGameplayEffect())
+		{
+			for (const FGameplayModifierInfo& Modifier : CostGE->Modifiers)
+			{
+				if (Modifier.Attribute.IsValid())
+				{
+					Result.Add(Modifier.Attribute);
+				}
+			}
+		}
+	}
+	return Result;
 }
 
 FActiveGameplayEffectHandle UVM_GameplayAbility::GetActiveCooldownEffect() const
@@ -175,6 +232,7 @@ void UVM_GameplayAbility::OnAnyAbilityActivated(UGameplayAbility* GameplayAbilit
 	{
 		TGuardValue<bool> IsActivatingGuard(bIsActivating, true);
 		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsActive);
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CanActivate);
 	}
 }
 
@@ -183,12 +241,25 @@ void UVM_GameplayAbility::OnAnyAbilityEnded(const FAbilityEndedData& AbilityEnde
 	if (AbilityEndedData.AbilitySpecHandle == AbilitySpecHandle)
 	{
 		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsActive);
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CanActivate);
 	}
+}
+
+void UVM_GameplayAbility::OnCostAttributeChanged(const FOnAttributeChangeData& AttributeChangeData)
+{
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CanActivate);
 }
 
 void UVM_GameplayAbility::OnCooldownTagChanged(FGameplayTag GameplayTag, int32 NewCount)
 {
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsOnCooldown);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CanActivate);
+}
+
+void UVM_GameplayAbility::OnAnyTagChanged(FGameplayTag GameplayTag, int32 NewCount)
+{
+	// skip checking activation required / blocked tags to save effort
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CanActivate);
 }
 
 void UVM_GameplayAbility::OnActiveGameplayEffectAdded(UAbilitySystemComponent* AbilitySystemComponent,
