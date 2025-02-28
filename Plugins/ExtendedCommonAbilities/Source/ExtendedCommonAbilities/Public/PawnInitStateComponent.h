@@ -28,8 +28,7 @@ public:
 
 	/**
 	 * If true, a Controller is required before transitioning to the DataAvailable state.
-	 * If Pawns may exist and be used without a controller set this to false, this won't
-	 * prevent locally controlled pawns from waiting for their controller.
+	 * If Pawns may exist and be used without a controller set this to false.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InitState")
 	bool bWaitForController;

@@ -78,9 +78,10 @@ bool UPawnInitStateComponent::CheckDataAvailable(UGameFrameworkComponentManager*
 	const APawn* Pawn = GetPawn<APawn>();
 	check(Pawn);
 
-	// if the pawn is locally controlled, ensure that controller exists or has been replicated
-	if ((bWaitForController && Pawn->HasAuthority()) ||
-		Pawn->IsPlayerControlled() || Pawn->IsBotControlled())
+	const bool bHasAuthority = Pawn->HasAuthority();
+	const bool bIsLocallyControlled = Pawn->IsLocallyControlled();
+
+	if (bWaitForController && (bHasAuthority || bIsLocallyControlled))
 	{
 		if (!GetController<AController>())
 		{
