@@ -11,14 +11,16 @@ public class ExtendedCommonAbilities : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
+			"AIModule",
 			"Core",
-			"ExtendedGameplayAbilities",
 			"EnhancedInput",
+			"ExtendedGameplayAbilities",
 			"GameplayAbilities",
 			"GameplayMessageRuntime",
 			"GameplayTags",
 			"ModularGameplay",
 			"ModularGameplayActors",
+			"NetCore",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
