@@ -102,7 +102,7 @@ private:
 	void HandleAsyncTraceComplete(const FTraceHandle& InTraceHandle, FTraceDatum& InTraceDatum, FTargetingRequestHandle TargetingHandle) const;
 
 	/** Method to take the hit results and store them in the targeting result data */
-	void ProcessHitResults(const FTargetingRequestHandle& TargetingHandle, const TArray<FHitResult>& Hits) const;
+	virtual void ProcessHitResults(const FTargetingRequestHandle& TargetingHandle, const TArray<FHitResult>& Hits) const;
 
 	/** Setup CollisionQueryParams for the trace */
 	void InitCollisionParams(const FTargetingRequestHandle& TargetingHandle, FCollisionQueryParams& OutParams) const;
@@ -191,13 +191,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Target Trace Selection | Trace Data")
 	uint8 bIgnoreInstigatorActor : 1;
 
-	/**
-	 * Include all hit results.
-	 * When false, non-blocking hits will be excluded, as well as
-	 * any hit results for actors that are already in the result data.
-	 */
+	/** Always include the end of the trace as a non-blocking hit result. */
 	UPROPERTY(EditAnywhere, Category = "Target Trace Selection | Trace Data")
-	uint8 bIncludeAllHitResults : 1;
+	uint8 bIncludeTraceEndAsHit : 1;
 
 protected:
 #if WITH_EDITOR

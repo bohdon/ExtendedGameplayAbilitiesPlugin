@@ -23,7 +23,7 @@ UExtendedTargetingSelectionTask_Trace::UExtendedTargetingSelectionTask_Trace(con
 	bComplexTrace = false;
 	bIgnoreSourceActor = false;
 	bIgnoreInstigatorActor = false;
-	bIncludeAllHitResults = false;
+	bIncludeTraceEndAsHit = false;
 }
 
 void UExtendedTargetingSelectionTask_Trace::Execute(const FTargetingRequestHandle& TargetingHandle) const
@@ -262,6 +262,26 @@ void UExtendedTargetingSelectionTask_Trace::ExecuteImmediateTrace(const FTargeti
 		DrawDebugTrace(TargetingHandle, Start, End, OrientationQuat, bHasBlockingHit, Hits);
 #endif // ENABLE_DRAW_DEBUG
 
+		if (bIncludeTraceEndAsHit)
+		{
+			bool bHasEndHit = false;
+			for (const FHitResult& HitResult : Hits)
+			{
+				if (FMath::IsNearlyEqual(HitResult.Time, 1.f))
+				{
+					bHasEndHit = true;
+					break;
+				}
+			}
+
+			if (!bHasEndHit)
+			{
+				// add a non-blocking result to represent max range
+				FHitResult& HitResult = Hits.Emplace_GetRef(Start, End);
+				HitResult.Location = HitResult.TraceEnd;
+			}
+		}
+
 		ProcessHitResults(TargetingHandle, Hits);
 	}
 
@@ -356,6 +376,8 @@ void UExtendedTargetingSelectionTask_Trace::HandleAsyncTraceComplete(const FTrac
                                                                      FTraceDatum& InTraceDatum,
                                                                      FTargetingRequestHandle TargetingHandle) const
 {
+	TArray<FHitResult> Hits = InTraceDatum.OutHits;
+
 	if (TargetingHandle.IsValid())
 	{
 #if ENABLE_DRAW_DEBUG
@@ -363,7 +385,7 @@ void UExtendedTargetingSelectionTask_Trace::HandleAsyncTraceComplete(const FTrac
 
 		// We have to manually find if there is a blocking hit.
 		bool bHasBlockingHit = false;
-		for (const FHitResult& HitResult : InTraceDatum.OutHits)
+		for (const FHitResult& HitResult : Hits)
 		{
 			if (HitResult.bBlockingHit)
 			{
@@ -372,23 +394,31 @@ void UExtendedTargetingSelectionTask_Trace::HandleAsyncTraceComplete(const FTrac
 			}
 		}
 
-		DrawDebugTrace(TargetingHandle, InTraceDatum.Start, InTraceDatum.End, InTraceDatum.Rot, bHasBlockingHit, InTraceDatum.OutHits);
+		DrawDebugTrace(TargetingHandle, InTraceDatum.Start, InTraceDatum.End, InTraceDatum.Rot, bHasBlockingHit, Hits);
 
 #endif // ENABLE_DRAW_DEBUG
 
-		// async traces are empty if nothing gets hit,
-		// add a non-blocking result if desired to represent max range
-		if (bIncludeAllHitResults && InTraceDatum.OutHits.IsEmpty())
+		if (bIncludeTraceEndAsHit)
 		{
-			TArray<FHitResult> MaxRangeHitResults;
-			FHitResult& HitResult = MaxRangeHitResults.Emplace_GetRef(InTraceDatum.Start, InTraceDatum.End);
-			HitResult.Location = HitResult.TraceEnd;
-			ProcessHitResults(TargetingHandle, MaxRangeHitResults);
+			bool bHasEndHit = false;
+			for (const FHitResult& HitResult : Hits)
+			{
+				if (FMath::IsNearlyEqual(HitResult.Time, 1.f))
+				{
+					bHasEndHit = true;
+					break;
+				}
+			}
+
+			if (!bHasEndHit)
+			{
+				// add a non-blocking result to represent max range
+				FHitResult& HitResult = Hits.Emplace_GetRef(InTraceDatum.Start, InTraceDatum.End);
+				HitResult.Location = HitResult.TraceEnd;
+			}
 		}
-		else
-		{
-			ProcessHitResults(TargetingHandle, InTraceDatum.OutHits);
-		}
+
+		ProcessHitResults(TargetingHandle, Hits);
 	}
 
 	SetTaskAsyncState(TargetingHandle, ETargetingTaskAsyncState::Completed);
@@ -401,35 +431,14 @@ void UExtendedTargetingSelectionTask_Trace::ProcessHitResults(const FTargetingRe
 		FTargetingDefaultResultsSet& TargetingResults = FTargetingDefaultResultsSet::FindOrAdd(TargetingHandle);
 		for (FHitResult HitResult : Hits)
 		{
-			bool bAddResult = true;
-			if (!bIncludeAllHitResults)
-			{
-				const AActor* HitActor = HitResult.GetActor();
-				if (!HitActor)
-				{
-					continue;
-				}
-
-				for (const FTargetingDefaultResultData& ResultData : TargetingResults.TargetResults)
-				{
-					if (ResultData.HitResult.GetActor() == HitActor)
-					{
-						bAddResult = false;
-						break;
-					}
-				}
-			}
-			else if (!HitResult.HasValidHitObjectHandle())
+			if (!HitResult.HasValidHitObjectHandle())
 			{
 				// when including empty hit results, copy the TraceEnd as the Location
 				HitResult.Location = HitResult.TraceEnd;
 			}
 
-			if (bAddResult)
-			{
-				FTargetingDefaultResultData* ResultData = new(TargetingResults.TargetResults) FTargetingDefaultResultData();
-				ResultData->HitResult = HitResult;
-			}
+			FTargetingDefaultResultData* ResultData = new(TargetingResults.TargetResults) FTargetingDefaultResultData();
+			ResultData->HitResult = HitResult;
 		}
 
 #if ENABLE_DRAW_DEBUG

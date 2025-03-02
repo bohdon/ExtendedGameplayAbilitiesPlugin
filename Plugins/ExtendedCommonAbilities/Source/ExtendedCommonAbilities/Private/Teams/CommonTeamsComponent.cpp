@@ -4,6 +4,7 @@
 #include "Teams/CommonTeamsComponent.h"
 
 #include "GenericTeamAgentInterface.h"
+#include "Framework/Commands/GenericCommands.h"
 #include "GameFramework/PlayerState.h"
 #include "Teams/CommonTeamStatics.h"
 
@@ -165,6 +166,10 @@ TEnumAsByte<ETeamAttitude::Type> UCommonTeamsComponent::GetAttitude(const UObjec
 {
 	const FGenericTeamId TeamIdA = GetObjectGenericTeamId(ObjectA);
 	const FGenericTeamId TeamIdB = GetObjectGenericTeamId(ObjectB);
+	if (TeamIdA == FGenericTeamId::NoTeam || TeamIdB == FGenericTeamId::NoTeam)
+	{
+		return ETeamAttitude::Neutral;
+	}
 	return FGenericTeamId::GetAttitude(TeamIdA, TeamIdB);
 }
 

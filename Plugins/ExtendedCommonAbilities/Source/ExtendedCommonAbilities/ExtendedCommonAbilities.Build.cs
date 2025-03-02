@@ -21,6 +21,7 @@ public class ExtendedCommonAbilities : ModuleRules
 			"ModularGameplay",
 			"ModularGameplayActors",
 			"NetCore",
+			"TargetingSystem",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
