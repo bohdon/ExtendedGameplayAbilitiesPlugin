@@ -30,6 +30,8 @@ enum class EExtendedTargetingTraceSourceLocation : uint8
 	CameraOrSourceActor,
 	/** Use the SourceLocation from the targeting context. */
 	SourceLocation,
+	/** Use the target data location from a previous task. */
+	TargetData,
 };
 
 
@@ -91,7 +93,6 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Target Trace Selection")
 	void GetAdditionalActorsToIgnore(const FTargetingRequestHandle& TargetingHandle, TArray<AActor*>& OutAdditionalActorsToIgnore) const;
 
-private:
 	/** Method to process the trace task immediately */
 	void ExecuteImmediateTrace(const FTargetingRequestHandle& TargetingHandle) const;
 
@@ -109,6 +110,9 @@ private:
 
 	/** For non-sphere shape traces, calculates the world rotation for that trace. */
 	FQuat GetSweptTraceQuat(const FVector& TraceDirection, const FTargetingRequestHandle& TargetingHandle) const;
+
+	/** Add or remove a hit result at the end of the trace, based on bIncludeTraceEndAsHit. */
+	virtual void AddOrRemoveEndHitResult(const FTargetingRequestHandle& TargetingHandle, TArray<FHitResult>& Hits, FVector Start, FVector End) const;
 
 protected:
 	/** The trace type (i.e. shape) to use */

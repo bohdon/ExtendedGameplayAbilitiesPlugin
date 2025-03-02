@@ -44,6 +44,18 @@ void UExtendedTargetingSelectionTask_Trace::Execute(const FTargetingRequestHandl
 
 FVector UExtendedTargetingSelectionTask_Trace::GetSourceLocation_Implementation(const FTargetingRequestHandle& TargetingHandle) const
 {
+	if (SourceLocationType == EExtendedTargetingTraceSourceLocation::TargetData)
+	{
+		if (FTargetingDefaultResultsSet* TargetingResults = FTargetingDefaultResultsSet::Find(TargetingHandle))
+		{
+			if (!TargetingResults->TargetResults.IsEmpty())
+			{
+				return TargetingResults->TargetResults[0].HitResult.Location;
+			}
+		}
+		return FVector::ZeroVector;
+	}
+
 	if (const FTargetingSourceContext* SourceContext = FTargetingSourceContext::Find(TargetingHandle))
 	{
 		if (SourceLocationType == EExtendedTargetingTraceSourceLocation::CameraOrSourceActor)
@@ -262,25 +274,7 @@ void UExtendedTargetingSelectionTask_Trace::ExecuteImmediateTrace(const FTargeti
 		DrawDebugTrace(TargetingHandle, Start, End, OrientationQuat, bHasBlockingHit, Hits);
 #endif // ENABLE_DRAW_DEBUG
 
-		if (bIncludeTraceEndAsHit)
-		{
-			bool bHasEndHit = false;
-			for (const FHitResult& HitResult : Hits)
-			{
-				if (FMath::IsNearlyEqual(HitResult.Time, 1.f))
-				{
-					bHasEndHit = true;
-					break;
-				}
-			}
-
-			if (!bHasEndHit)
-			{
-				// add a non-blocking result to represent max range
-				FHitResult& HitResult = Hits.Emplace_GetRef(Start, End);
-				HitResult.Location = HitResult.TraceEnd;
-			}
-		}
+		AddOrRemoveEndHitResult(TargetingHandle, Hits, Start, End);
 
 		ProcessHitResults(TargetingHandle, Hits);
 	}
@@ -398,30 +392,42 @@ void UExtendedTargetingSelectionTask_Trace::HandleAsyncTraceComplete(const FTrac
 
 #endif // ENABLE_DRAW_DEBUG
 
-		if (bIncludeTraceEndAsHit)
-		{
-			bool bHasEndHit = false;
-			for (const FHitResult& HitResult : Hits)
-			{
-				if (FMath::IsNearlyEqual(HitResult.Time, 1.f))
-				{
-					bHasEndHit = true;
-					break;
-				}
-			}
-
-			if (!bHasEndHit)
-			{
-				// add a non-blocking result to represent max range
-				FHitResult& HitResult = Hits.Emplace_GetRef(InTraceDatum.Start, InTraceDatum.End);
-				HitResult.Location = HitResult.TraceEnd;
-			}
-		}
+		AddOrRemoveEndHitResult(TargetingHandle, Hits, InTraceDatum.Start, InTraceDatum.End);
 
 		ProcessHitResults(TargetingHandle, Hits);
 	}
 
 	SetTaskAsyncState(TargetingHandle, ETargetingTaskAsyncState::Completed);
+}
+
+void UExtendedTargetingSelectionTask_Trace::AddOrRemoveEndHitResult(const FTargetingRequestHandle& TargetingHandle, TArray<FHitResult>& Hits,
+                                                                    FVector Start, FVector End) const
+{
+	// add or remove end hits
+	bool bHasEndHit = false;
+	for (auto HitIt = Hits.CreateIterator(); HitIt; ++HitIt)
+	{
+		const FHitResult& HitResult = *HitIt;
+		if (!HitResult.HasValidHitObjectHandle() && FMath::IsNearlyEqual(HitResult.Time, 1.f))
+		{
+			if (bIncludeTraceEndAsHit)
+			{
+				bHasEndHit = true;
+				break;
+			}
+			else
+			{
+				HitIt.RemoveCurrent();
+			}
+		}
+	}
+	if (bIncludeTraceEndAsHit && !bHasEndHit)
+	{
+		// add an empty result to represent max range
+		FHitResult& HitResult = Hits.Emplace_GetRef(Start, End);
+		HitResult.Location = HitResult.TraceEnd;
+		HitResult.ImpactPoint = HitResult.Location;
+	}
 }
 
 void UExtendedTargetingSelectionTask_Trace::ProcessHitResults(const FTargetingRequestHandle& TargetingHandle, const TArray<FHitResult>& Hits) const
