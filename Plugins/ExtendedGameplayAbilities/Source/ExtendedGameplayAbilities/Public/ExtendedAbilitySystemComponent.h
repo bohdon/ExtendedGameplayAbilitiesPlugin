@@ -48,6 +48,10 @@ public:
 	UFUNCTION(BlueprintCallable, DisplayName = "ApplyGameplayEffectSpecSetToSelf", Category = "GameplayEffects")
 	TArray<FActiveGameplayEffectHandle> ApplyGameplayEffectSpecSetToSelf(const FGameplayEffectSpecSet& EffectSpecSet);
 
+	/** Cancel all abilities with the given state tags. */
+	UFUNCTION(BlueprintCallable, Category = "Abilities")
+	void CancelAbilitiesWithState(FGameplayTagContainer WithStateTags, UGameplayAbility* IgnoreAbility);
+
 	virtual void InitializeComponent() override;
 	virtual void OnGiveAbility(FGameplayAbilitySpec& AbilitySpec) override;
 	virtual void OnRemoveAbility(FGameplayAbilitySpec& AbilitySpec) override;

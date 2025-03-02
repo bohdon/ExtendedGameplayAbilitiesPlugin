@@ -7,6 +7,9 @@
 #include "Abilities/GameplayAbility.h"
 #include "ExtendedGameplayAbility.generated.h"
 
+class ACharacter;
+class APawn;
+
 
 /**
  * Defines a dynamic cooldown for an extended gameplay ability.
@@ -143,4 +146,33 @@ public:
 	/** Return the player controller from the actor info. */
 	UFUNCTION(BlueprintPure, Category = "Ability")
 	APlayerController* GetPlayerControllerFromActorInfo() const;
+
+	/** Set new ability state tags for this ability. */
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void SetAbilityStateTags(FGameplayTagContainer NewStateTags);
+
+	/** Add an ability state tag to this ability. */
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void AddAbilityStateTag(FGameplayTag StateTag);
+
+	/** Remove an ability state tag from this ability. */
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void RemoveAbilityStateTag(FGameplayTag StateTag);
+
+	/** Clear all ability state tags on this ability. */
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void ClearAbilityStateTags();
+
+	/** Return the ability's current state tags. */
+	UFUNCTION(BlueprintPure)
+	const FGameplayTagContainer& GetAbilityStateTags() const { return AbilityStateTags; }
+
+protected:
+	/**
+	 * Dynamically added tags that this ability has based on its current state.
+	 * These can be changed during execution and used in combination with CancelAbilitiesWithState tags.
+	 * Not replicated.
+	 */
+	UPROPERTY(Transient)
+	FGameplayTagContainer AbilityStateTags;
 };

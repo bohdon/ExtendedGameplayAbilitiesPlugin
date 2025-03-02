@@ -319,3 +319,23 @@ APlayerController* UExtendedGameplayAbility::GetPlayerControllerFromActorInfo() 
 {
 	return Cast<APlayerController>(GetControllerFromActorInfo());
 }
+
+void UExtendedGameplayAbility::SetAbilityStateTags(const FGameplayTagContainer NewStateTags)
+{
+	AbilityStateTags = NewStateTags;
+}
+
+void UExtendedGameplayAbility::AddAbilityStateTag(const FGameplayTag StateTag)
+{
+	AbilityStateTags.AddTag(StateTag);
+}
+
+void UExtendedGameplayAbility::RemoveAbilityStateTag(const FGameplayTag StateTag)
+{
+	AbilityStateTags.RemoveTag(StateTag);
+}
+
+void UExtendedGameplayAbility::ClearAbilityStateTags()
+{
+	AbilityStateTags.Reset();
+}

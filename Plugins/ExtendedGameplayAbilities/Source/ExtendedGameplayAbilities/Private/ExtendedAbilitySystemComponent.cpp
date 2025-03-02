@@ -4,6 +4,7 @@
 
 #include "ExtendedAbilitySet.h"
 #include "ExtendedAbilityTagRelationshipMapping.h"
+#include "ExtendedGameplayAbility.h"
 
 
 UExtendedAbilitySystemComponent::UExtendedAbilitySystemComponent(const FObjectInitializer& ObjectInitializer)
@@ -44,6 +45,45 @@ TArray<FActiveGameplayEffectHandle> UExtendedAbilitySystemComponent::ApplyGamepl
 		}
 	}
 	return Result;
+}
+
+void UExtendedAbilitySystemComponent::CancelAbilitiesWithState(FGameplayTagContainer WithStateTags, UGameplayAbility* IgnoreAbility)
+{
+	const FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get();
+
+	ABILITYLIST_SCOPE_LOCK();
+	for (FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+	{
+		if (!Spec.IsActive() || !Spec.Ability)
+		{
+			continue;
+		}
+
+		bool bDidCancel = false;
+		TArray<UGameplayAbility*> AbilityInstances = Spec.GetAbilityInstances();
+		for (UGameplayAbility* Ability : AbilityInstances)
+		{
+			if (Ability == IgnoreAbility)
+			{
+				continue;
+			}
+
+			UExtendedGameplayAbility* ExtendedAbility = Cast<UExtendedGameplayAbility>(Ability);
+			if (ExtendedAbility && ExtendedAbility->IsActive())
+			{
+				if (ExtendedAbility->GetAbilityStateTags().HasAny(WithStateTags))
+				{
+					ExtendedAbility->CancelAbility(Spec.Handle, ActorInfo, ExtendedAbility->GetCurrentActivationInfoRef(), true);
+					bDidCancel = true;
+				}
+			}
+		}
+
+		if (bDidCancel)
+		{
+			MarkAbilitySpecDirty(Spec);
+		}
+	}
 }
 
 void UExtendedAbilitySystemComponent::InitializeComponent()
