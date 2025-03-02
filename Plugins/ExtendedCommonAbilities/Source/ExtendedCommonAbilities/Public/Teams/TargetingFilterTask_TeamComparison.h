@@ -25,11 +25,11 @@ public:
 
 	/** Only include results that match this team attitude. */
 	UPROPERTY(EditAnywhere, Category = "Teams", meta = (Bitmask, BitmaskEnum = "/Script/AIModule.ETeamAttitude"))
-	uint8 Attitude;
+	uint8 AttitudeMask;
 
 	/** Only include results that match this team comparison. */
 	UPROPERTY(EditAnywhere, Category = "Teams", meta = (Bitmask, BitmaskEnum = "/Script/ExtendedCommonAbilities.ECommonTeamComparison"))
-	uint8 Comparison;
+	uint8 ComparisonMask;
 
 	virtual void Execute(const FTargetingRequestHandle& TargetingHandle) const override;
 	virtual bool ShouldFilterTarget(const FTargetingRequestHandle& TargetingHandle, const FTargetingDefaultResultData& TargetData) const override;

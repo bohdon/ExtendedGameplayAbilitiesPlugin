@@ -10,14 +10,8 @@
 UTargetingFilterTask_TeamComparison::UTargetingFilterTask_TeamComparison(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	Attitude =
-		(1 << ETeamAttitude::Friendly) |
-		(1 << ETeamAttitude::Neutral) |
-		(1 << ETeamAttitude::Hostile);
-	Comparison =
-		(1 << static_cast<uint8>(ECommonTeamComparison::SameTeam)) |
-		(1 << static_cast<uint8>(ECommonTeamComparison::DifferentTeams)) |
-		(1 << static_cast<uint8>(ECommonTeamComparison::NoTeam));
+	AttitudeMask = FCommonTeamTypes::AllAttitudesMask;
+	ComparisonMask = FCommonTeamTypes::AllComparisonsMask;
 }
 
 void UTargetingFilterTask_TeamComparison::Execute(const FTargetingRequestHandle& TargetingHandle) const
@@ -49,15 +43,6 @@ void UTargetingFilterTask_TeamComparison::Execute(const FTargetingRequestHandle&
 bool UTargetingFilterTask_TeamComparison::ShouldFilterTarget(const FTargetingRequestHandle& TargetingHandle,
                                                              const FTargetingDefaultResultData& TargetData) const
 {
-	static uint8 AllAttitudesFlag =
-		(1 << ETeamAttitude::Friendly) |
-		(1 << ETeamAttitude::Neutral) |
-		(1 << ETeamAttitude::Hostile);
-	static uint8 AllComparisonsFlag =
-		(1 << static_cast<uint8>(ECommonTeamComparison::SameTeam)) |
-		(1 << static_cast<uint8>(ECommonTeamComparison::DifferentTeams)) |
-		(1 << static_cast<uint8>(ECommonTeamComparison::NoTeam));
-
 	const AActor* HitActor = TargetData.HitResult.GetActor();
 	if (!HitActor)
 	{
@@ -79,22 +64,21 @@ bool UTargetingFilterTask_TeamComparison::ShouldFilterTarget(const FTargetingReq
 		return true;
 	}
 
-	AActor* Instigator = SourceContext->InstigatorActor.Get();
+	const AActor* Instigator = SourceContext->InstigatorActor.Get();
 
-	if (Attitude != AllAttitudesFlag)
+	if (AttitudeMask != FCommonTeamTypes::AllAttitudesMask)
 	{
 		const ETeamAttitude::Type HitAttitude = TeamsComp->GetAttitude(Instigator, HitActor);
-		if (!((1 << HitAttitude) & Attitude))
+		if (!FCommonTeamTypes::MatchesAttitudeMask(HitAttitude, AttitudeMask))
 		{
 			return true;
 		}
 	}
 
-
-	if (Comparison != AllComparisonsFlag)
+	if (ComparisonMask != FCommonTeamTypes::AllComparisonsMask)
 	{
 		const ECommonTeamComparison HitComparison = TeamsComp->CompareTeams(Instigator, HitActor);
-		if (!((1 << static_cast<uint8>(HitComparison)) & Comparison))
+		if (!FCommonTeamTypes::MatchesComparisonMask(HitComparison, ComparisonMask))
 		{
 			return true;
 		}
