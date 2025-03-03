@@ -7,6 +7,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/NetSerialization.h"
 #include "Engine/World.h"
+#include "Targeting/ExtendedTargetingSystemTypes.h"
 #include "TargetingSystem/TargetingSubsystem.h"
 
 
@@ -151,10 +152,13 @@ void AGameplayAbilityTargetActor_TargetingPreset::PerformTargetingInternal(bool 
 	else
 	{
 		// ensure previous results are cleared before every update
-		// (continuous async targeting handles this automatically with bRequeueOnCompletion)
-		if (FTargetingDefaultResultsSet* Results = FTargetingDefaultResultsSet::Find(TargetingHandle))
+		if (FTargetingDefaultResultsSet* HitResults = FTargetingDefaultResultsSet::Find(TargetingHandle))
 		{
-			Results->TargetResults.Empty();
+			HitResults->TargetResults.Empty();
+		}
+		if (FExtendedTargetingTransformResultsSet* TransformResults = FExtendedTargetingTransformResultsSet::Find(TargetingHandle))
+		{
+			TransformResults->TargetResults.Empty();
 		}
 	}
 
@@ -210,47 +214,86 @@ void AGameplayAbilityTargetActor_TargetingPreset::UpdateTargetData()
 		return;
 	}
 
-	const FTargetingDefaultResultsSet* Results = FTargetingDefaultResultsSet::Find(TargetingHandle);
-	if (!Results)
+	TargetData.Clear();
+
+	CreateTargetDataFromRequest(TargetingHandle, TargetData);
+
+	bHasTargetData = TargetData.Num() > 0;
+
+	// update reticle
+	if (AGameplayAbilityWorldReticle* Reticle = ReticleActor.Get())
+	{
+		SetReticleTransformFromTargetData(Reticle, TargetData);
+	}
+}
+
+void AGameplayAbilityTargetActor_TargetingPreset::CreateTargetDataFromRequest(FTargetingRequestHandle TargetingRequest,
+                                                                              FGameplayAbilityTargetDataHandle& OutTargetData)
+{
+	// gather transforms
+	if (FExtendedTargetingTransformResultsSet* TransformResults = FExtendedTargetingTransformResultsSet::Find(TargetingHandle))
+	{
+		for (const FExtendedTargetingTransformResultData& TransformResult : TransformResults->TargetResults)
+		{
+			FGameplayAbilityTargetingLocationInfo LocationInfo;
+			LocationInfo.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+			LocationInfo.LiteralTransform = TransformResult.Transform;
+
+			FGameplayAbilityTargetData_LocationInfo* LocationTargetData = new FGameplayAbilityTargetData_LocationInfo();
+			LocationTargetData->SourceLocation = LocationInfo;
+			LocationTargetData->TargetLocation = LocationInfo;
+
+			OutTargetData.Add(LocationTargetData);
+		}
+	}
+
+	// gather hit results
+	if (const FTargetingDefaultResultsSet* Results = FTargetingDefaultResultsSet::Find(TargetingHandle))
+	{
+		for (const FTargetingDefaultResultData& Result : Results->TargetResults)
+		{
+			/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
+			FGameplayAbilityTargetData_SingleTargetHit* HitTargetData = new FGameplayAbilityTargetData_SingleTargetHit();
+			HitTargetData->HitResult = Result.HitResult;
+			OutTargetData.Add(HitTargetData);
+		}
+	}
+}
+
+void AGameplayAbilityTargetActor_TargetingPreset::SetReticleTransformFromTargetData(AGameplayAbilityWorldReticle* InReticle,
+                                                                                    const FGameplayAbilityTargetDataHandle& InTargetData) const
+{
+	const FGameplayAbilityTargetData* FirstResult = InTargetData.Get(0);
+	if (!FirstResult)
 	{
 		return;
 	}
 
-	bHasTargetData = true;
-
-	TargetData.Clear();
-	TOptional<FHitResult> FirstHit;
-
-	for (const FTargetingDefaultResultData& Result : Results->TargetResults)
+	// check for hit results
+	if (const FHitResult* HitResult = FirstResult->GetHitResult())
 	{
-		/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
-		FGameplayAbilityTargetData_SingleTargetHit* ReturnData = new FGameplayAbilityTargetData_SingleTargetHit();
-		ReturnData->HitResult = Result.HitResult;
-		TargetData.Add(ReturnData);
-
-		if (!FirstHit.IsSet())
+		if (HitResult->HasValidHitObjectHandle())
 		{
-			FirstHit = Result.HitResult;
+			const FVector Location = InReticle->bSnapToTargetedActor ? HitResult->GetHitObjectHandle().GetLocation() : FVector(HitResult->Location);
+			InReticle->SetActorLocation(Location);
+			InReticle->SetIsTargetAnActor(true);
+			return;
 		}
+
+		InReticle->SetActorLocation(HitResult->Location);
+		InReticle->SetIsTargetAnActor(false);
+		return;
 	}
 
-	// update reticle
-	if (AGameplayAbilityWorldReticle* LocalReticleActor = ReticleActor.Get())
-	{
-		if (FirstHit.IsSet())
-		{
-			const FHitResult& Hit = FirstHit.GetValue();
-			const bool bHitActor = Hit.bBlockingHit && Hit.HitObjectHandle.IsValid();
-			const FVector ReticleLocation = (bHitActor && LocalReticleActor->bSnapToTargetedActor)
-				                                ? Hit.HitObjectHandle.GetLocation()
-				                                : FVector(Hit.Location);
+	InReticle->SetIsTargetAnActor(false);
 
-			LocalReticleActor->SetActorLocation(ReticleLocation);
-			LocalReticleActor->SetIsTargetAnActor(bHitActor);
-		}
-		else
-		{
-			LocalReticleActor->SetIsTargetAnActor(false);
-		}
+	// check for end point and origin
+	if (FirstResult->HasEndPoint())
+	{
+		InReticle->SetActorTransform(FirstResult->GetEndPointTransform());
+	}
+	else if (FirstResult->HasOrigin())
+	{
+		InReticle->SetActorTransform(FirstResult->GetOrigin());
 	}
 }

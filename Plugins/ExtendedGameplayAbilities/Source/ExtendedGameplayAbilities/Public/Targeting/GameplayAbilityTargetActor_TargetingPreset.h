@@ -99,4 +99,9 @@ protected:
 
 	/** Update TargetData from the latest targeting request's results. */
 	virtual void UpdateTargetData();
+
+	virtual void CreateTargetDataFromRequest(FTargetingRequestHandle TargetingRequest, FGameplayAbilityTargetDataHandle& OutTargetData);
+
+	virtual void SetReticleTransformFromTargetData(AGameplayAbilityWorldReticle* InReticle,
+	                                               const FGameplayAbilityTargetDataHandle& InTargetData) const;
 };

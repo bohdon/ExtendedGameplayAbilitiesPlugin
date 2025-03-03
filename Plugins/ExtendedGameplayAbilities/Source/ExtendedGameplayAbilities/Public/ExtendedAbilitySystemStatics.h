@@ -8,8 +8,10 @@
 #include "GameplayEffectSet.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Targeting/ExtendedTargetingFilterTask_SingleResult.h"
 #include "ExtendedAbilitySystemStatics.generated.h"
 
+class AGameplayAbilityTargetActor_TargetingPreset;
 class UAbilityGamePhaseComponent;
 class UExtendedAbilitySystemComponent;
 
@@ -30,6 +32,14 @@ public:
 	/** Create target data from a literal transform. */
 	UFUNCTION(BlueprintPure, Category = "Ability|TargetData")
 	static FGameplayAbilityTargetDataHandle AbilityTargetDataFromTransform(const FTransform Transform);
+
+	/** Return the transform results for a targeting request handle */
+	UFUNCTION(BlueprintPure, Category = "Targeting System|Targeting Results")
+	static void GetTargetingResultsTransforms(FTargetingRequestHandle TargetingHandle, TArray<FTransform>& Targets);
+
+	/** Get the targeting actor that is the source object of a targeting request. */
+	UFUNCTION(BlueprintCallable, Category = "Targeting System|Targeting Results")
+	static AGameplayAbilityTargetActor_TargetingPreset* GetTargetingActorForRequest(FTargetingRequestHandle TargetingHandle);
 
 	/** Set a gameplay tag Set By Caller magnitude value for all effects in a set. */
 	UFUNCTION(BlueprintCallable, Meta = (DisplayName = "Assign Tag Set By Caller Magnitude (For Set)"), Category = "Ability|GameplayEffect")

@@ -9,6 +9,8 @@
 #include "Engine/Engine.h"
 #include "GameFramework/GameStateBase.h"
 #include "Phases/AbilityGamePhaseComponent.h"
+#include "Targeting/ExtendedTargetingSystemTypes.h"
+#include "Targeting/GameplayAbilityTargetActor_TargetingPreset.h"
 
 
 UExtendedAbilitySystemComponent* UExtendedAbilitySystemStatics::GetExtendedAbilitySystemComponent(AActor* Actor)
@@ -28,6 +30,28 @@ FGameplayAbilityTargetDataHandle UExtendedAbilitySystemStatics::AbilityTargetDat
 
 	FGameplayAbilityTargetDataHandle Handle(TargetData);
 	return Handle;
+}
+
+void UExtendedAbilitySystemStatics::GetTargetingResultsTransforms(FTargetingRequestHandle TargetingHandle, TArray<FTransform>& Targets)
+{
+	Targets.Reset();
+	if (FExtendedTargetingTransformResultsSet* Results = FExtendedTargetingTransformResultsSet::Find(TargetingHandle))
+	{
+		Targets.Reserve(Results->TargetResults.Num());
+		for (const FExtendedTargetingTransformResultData& Result : Results->TargetResults)
+		{
+			Targets.Add(Result.Transform);
+		}
+	}
+}
+
+AGameplayAbilityTargetActor_TargetingPreset* UExtendedAbilitySystemStatics::GetTargetingActorForRequest(FTargetingRequestHandle TargetingHandle)
+{
+	if (const FTargetingSourceContext* SourceContext = FTargetingSourceContext::Find(TargetingHandle))
+	{
+		return Cast<AGameplayAbilityTargetActor_TargetingPreset>(SourceContext->SourceObject);
+	}
+	return nullptr;
 }
 
 FGameplayEffectSpecSet UExtendedAbilitySystemStatics::AssignTagSetByCallerMagnitudeForSet(FGameplayEffectSpecSet EffectSpecSet, FGameplayTag DataTag,

@@ -17,7 +17,7 @@ enum class ETargetingFilterSingleResultType : uint8
 
 
 /**
- * Selects a single result based on a heuristic.
+ * Selects a single hit result from the default result data based on a heuristic.
  */
 UCLASS()
 class EXTENDEDGAMEPLAYABILITIES_API UExtendedTargetingFilterTask_SingleResult : public UTargetingTask
