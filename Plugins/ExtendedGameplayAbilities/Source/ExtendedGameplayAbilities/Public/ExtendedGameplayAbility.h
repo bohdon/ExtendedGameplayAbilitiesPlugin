@@ -64,14 +64,14 @@ public:
 
 	/** Setup an input component for this ability when activated, to support input actions. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
-	bool bEnableInput = false;
+	bool bEnableInputBindings = false;
 
 	/** The priority if the input component for this ability. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input", meta = (EditCondition = "bEnableInput"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input", meta = (EditCondition = "bEnableInputBindings"))
 	int32 InputPriority = 0;
 
 	/** Whether to block input to lower-priority input components. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input", meta = (EditCondition = "bEnableInput"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input", meta = (EditCondition = "bEnableInputBindings"))
 	bool bBlockInput = false;
 
 	/** If true, use a cooldown duration defined by this ability, optionally via function. */

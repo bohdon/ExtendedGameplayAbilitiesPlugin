@@ -62,7 +62,7 @@ void UExtendedGameplayAbility::PreActivate(const FGameplayAbilitySpecHandle Hand
 {
 	Super::PreActivate(Handle, ActorInfo, ActivationInfo, OnGameplayAbilityEndedDelegate, TriggerEventData);
 
-	if (bEnableInput)
+	if (bEnableInputBindings)
 	{
 		// setup enhanced input support if needed
 		InitializeInputComponent();
@@ -73,7 +73,7 @@ void UExtendedGameplayAbility::PreActivate(const FGameplayAbilitySpecHandle Hand
 void UExtendedGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                           const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (bEnableInput)
+	if (bEnableInputBindings)
 	{
 		UninitializeInputComponent();
 
