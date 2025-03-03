@@ -20,6 +20,8 @@
 UExtendedGameplayAbility::UExtendedGameplayAbility(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	// one instance per ability system is usually more common, and a more understandable default
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 float UExtendedGameplayAbility::GetDynamicCooldownDuration_Implementation(int32 AbilityLevel) const
