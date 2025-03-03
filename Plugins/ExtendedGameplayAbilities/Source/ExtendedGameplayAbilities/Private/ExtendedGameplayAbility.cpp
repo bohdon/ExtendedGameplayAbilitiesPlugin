@@ -5,17 +5,20 @@
 
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
+#include "EnhancedInputSubsystems.h"
 #include "ExtendedAbilitySystemComponent.h"
 #include "ExtendedAbilitySystemStatics.h"
 #include "ExtendedGameplayAbilitiesSettings.h"
+#include "Components/InputComponent.h"
+#include "Engine/InputDelegateBinding.h"
+#include "Engine/LocalPlayer.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/InputSettings.h"
 #include "GameFramework/PlayerController.h"
 
 
 UExtendedGameplayAbility::UExtendedGameplayAbility(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer),
-	  bActivateWhenGranted(false),
-	  bHasDynamicCooldown(false)
+	: Super(ObjectInitializer)
 {
 }
 
@@ -50,6 +53,76 @@ const FGameplayTagContainer* UExtendedGameplayAbility::GetCooldownTags() const
 		return &DynamicCooldown.Tags;
 	}
 	return Super::GetCooldownTags();
+}
+
+void UExtendedGameplayAbility::PreActivate(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+                                           const FGameplayAbilityActivationInfo ActivationInfo,
+                                           FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate,
+                                           const FGameplayEventData* TriggerEventData)
+{
+	Super::PreActivate(Handle, ActorInfo, ActivationInfo, OnGameplayAbilityEndedDelegate, TriggerEventData);
+
+	if (bEnableInput)
+	{
+		// setup enhanced input support if needed
+		InitializeInputComponent();
+		UInputDelegateBinding::BindInputDelegates(GetClass(), InputComponent, this);
+	}
+}
+
+void UExtendedGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+                                          const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (bEnableInput)
+	{
+		UninitializeInputComponent();
+
+		TArray<TObjectPtr<const UInputMappingContext>> MappingContextsToRemove = ActiveMappingContexts;
+		for (const TObjectPtr<const UInputMappingContext>& MappingContext : MappingContextsToRemove)
+		{
+			RemoveInputMappingContext(MappingContext);
+		}
+	}
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UExtendedGameplayAbility::InitializeInputComponent()
+{
+	if (GetInstancingPolicy() == EGameplayAbilityInstancingPolicy::NonInstanced)
+	{
+		return;
+	}
+
+	if (APlayerController* Controller = GetPlayerControllerFromActorInfo())
+	{
+		const UClass* InputClass = Controller->InputComponent ? Controller->InputComponent->GetClass() : UInputSettings::GetDefaultInputComponentClass();
+		InputComponent = NewObject<UInputComponent>(this, InputClass, NAME_None, RF_Transient);
+		InputComponent->Priority = InputPriority;
+		InputComponent->bBlockInput = bBlockInput;
+
+		Controller->PushInputComponent(InputComponent);
+	}
+}
+
+void UExtendedGameplayAbility::UninitializeInputComponent()
+{
+	if (GetInstancingPolicy() == EGameplayAbilityInstancingPolicy::NonInstanced)
+	{
+		return;
+	}
+
+	if (InputComponent)
+	{
+		if (APlayerController* Controller = GetPlayerControllerFromActorInfo())
+		{
+			Controller->PopInputComponent(InputComponent);
+		}
+
+		InputComponent->ClearActionBindings();
+		InputComponent->MarkAsGarbage();
+		InputComponent = nullptr;
+	}
 }
 
 void UExtendedGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -338,4 +411,38 @@ void UExtendedGameplayAbility::RemoveAbilityStateTag(const FGameplayTag StateTag
 void UExtendedGameplayAbility::ClearAbilityStateTags()
 {
 	AbilityStateTags.Reset();
+}
+
+void UExtendedGameplayAbility::AddInputMappingContext(const UInputMappingContext* MappingContext, int32 Priority, const FModifyContextOptions& Options)
+{
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	if (const APlayerController* PC = GetPlayerControllerFromActorInfo())
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+		{
+			ActiveMappingContexts.AddUnique(MappingContext);
+			Subsystem->AddMappingContext(MappingContext, Priority, Options);
+		}
+	}
+}
+
+void UExtendedGameplayAbility::RemoveInputMappingContext(const UInputMappingContext* MappingContext, const FModifyContextOptions& Options)
+{
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	if (const APlayerController* PC = GetPlayerControllerFromActorInfo())
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+		{
+			ActiveMappingContexts.Remove(MappingContext);
+			Subsystem->RemoveMappingContext(MappingContext, Options);
+		}
+	}
 }

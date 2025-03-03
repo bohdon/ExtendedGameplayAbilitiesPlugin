@@ -47,10 +47,15 @@ public:
 	const FGameplayAbilityTargetDataHandle& GetTargetData() const { return TargetData; }
 
 	/** Create a targeting source context. */
-	virtual FTargetingSourceContext GetTargetingContext();
+	virtual FTargetingSourceContext CreateTargetingContext();
 
 	/** Return the current target request handle. */
+	UFUNCTION(BlueprintPure, Category = "Targeting")
 	const FTargetingRequestHandle& GetTargetingHandle() const { return TargetingHandle; }
+
+	/** Return the ability that owns this targeting actor. */
+	UFUNCTION(BlueprintPure, Category = "Targeting")
+	UGameplayAbility* GetOwningAbility() const { return OwningAbility; }
 
 	/**
 	 * Start a new targeting request. Does nothing if one is already active.

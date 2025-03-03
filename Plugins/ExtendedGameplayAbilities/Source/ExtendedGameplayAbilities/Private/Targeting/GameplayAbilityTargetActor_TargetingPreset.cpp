@@ -146,7 +146,7 @@ void AGameplayAbilityTargetActor_TargetingPreset::PerformTargetingInternal(bool 
 	// setup request handle and data stores that will be re-used
 	if (!TargetingHandle.IsValid())
 	{
-		TargetingHandle = UTargetingSubsystem::MakeTargetRequestHandle(Preset, GetTargetingContext());
+		TargetingHandle = UTargetingSubsystem::MakeTargetRequestHandle(Preset, CreateTargetingContext());
 	}
 	else
 	{
@@ -191,7 +191,7 @@ void AGameplayAbilityTargetActor_TargetingPreset::OnTargetingRequestCompleted(FT
 	UpdateTargetData();
 }
 
-FTargetingSourceContext AGameplayAbilityTargetActor_TargetingPreset::GetTargetingContext()
+FTargetingSourceContext AGameplayAbilityTargetActor_TargetingPreset::CreateTargetingContext()
 {
 	FTargetingSourceContext Context;
 	Context.SourceActor = SourceActor;

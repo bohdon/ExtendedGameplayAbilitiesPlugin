@@ -6,6 +6,7 @@
 #include "ActiveGameplayEffectHandle.h"
 #include "ExtendedAbilitySet.h"
 #include "GameplayEffectSet.h"
+#include "Abilities/GameplayAbilityTargetTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ExtendedAbilitySystemStatics.generated.h"
 
@@ -25,6 +26,10 @@ public:
 	/** Tries to find an extended ability system component on the actor, will use AbilitySystemInterface or fall back to a component search. */
 	UFUNCTION(BlueprintPure, Meta = (DefaultToSelf = "Actor"), Category = "Ability")
 	static UExtendedAbilitySystemComponent* GetExtendedAbilitySystemComponent(AActor* Actor);
+
+	/** Create target data from a literal transform. */
+	UFUNCTION(BlueprintPure, Category = "Ability|TargetData")
+	static FGameplayAbilityTargetDataHandle AbilityTargetDataFromTransform(const FTransform Transform);
 
 	/** Set a gameplay tag Set By Caller magnitude value for all effects in a set. */
 	UFUNCTION(BlueprintCallable, Meta = (DisplayName = "Assign Tag Set By Caller Magnitude (For Set)"), Category = "Ability|GameplayEffect")

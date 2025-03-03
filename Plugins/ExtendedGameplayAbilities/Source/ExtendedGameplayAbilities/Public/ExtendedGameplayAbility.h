@@ -3,12 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnhancedInputSubsystemInterface.h"
 #include "GameplayEffectSet.h"
 #include "Abilities/GameplayAbility.h"
 #include "ExtendedGameplayAbility.generated.h"
 
 class ACharacter;
 class APawn;
+class UInputComponent;
+class UInputMappingContext;
 
 
 /**
@@ -57,11 +60,23 @@ public:
 	 * Useful for passives or inflicted abilities.
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Triggers")
-	bool bActivateWhenGranted;
+	bool bActivateWhenGranted = false;
+
+	/** Setup an input component for this ability when activated, to support input actions. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
+	bool bEnableInput = false;
+
+	/** The priority if the input component for this ability. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input", meta = (EditCondition = "bEnableInput"))
+	int32 InputPriority = 0;
+
+	/** Whether to block input to lower-priority input components. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input", meta = (EditCondition = "bEnableInput"))
+	bool bBlockInput = false;
 
 	/** If true, use a cooldown duration defined by this ability, optionally via function. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (InlineEditConditionToggle), Category = "Cooldowns")
-	bool bHasDynamicCooldown;
+	bool bHasDynamicCooldown = false;
 
 	/**
 	 * When enabled, allows specifying a cooldown duration and tags per-ability. You can then also implement
@@ -88,6 +103,12 @@ public:
 	virtual UGameplayEffect* GetCooldownGameplayEffect() const override;
 
 	virtual const FGameplayTagContainer* GetCooldownTags() const override;
+
+	virtual void PreActivate(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	                         const FGameplayAbilityActivationInfo ActivationInfo, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate,
+	                         const FGameplayEventData* TriggerEventData = nullptr) override;
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	                        const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	                           const FGameplayAbilityActivationInfo ActivationInfo) const override;
@@ -167,6 +188,16 @@ public:
 	UFUNCTION(BlueprintPure)
 	const FGameplayTagContainer& GetAbilityStateTags() const { return AbilityStateTags; }
 
+	/**
+	 * Add an input mapping context, only on the locally controlled client.
+	 * Will be removed automatically when the ability deactivates, if not removed manually.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Ability|Input", meta = (AutoCreateRefTerm = "Options"))
+	void AddInputMappingContext(const UInputMappingContext* MappingContext, int32 Priority, const FModifyContextOptions& Options = FModifyContextOptions());
+
+	UFUNCTION(BlueprintCallable, Category = "Ability|Input", meta = (AutoCreateRefTerm = "Options"))
+	void RemoveInputMappingContext(const UInputMappingContext* MappingContext, const FModifyContextOptions& Options = FModifyContextOptions());
+
 protected:
 	/**
 	 * Dynamically added tags that this ability has based on its current state.
@@ -175,4 +206,15 @@ protected:
 	 */
 	UPROPERTY(Transient)
 	FGameplayTagContainer AbilityStateTags;
+
+	/** Input component used to support enhanced input events directly in the ability. */
+	UPROPERTY(Transient, DuplicateTransient)
+	TObjectPtr<UInputComponent> InputComponent;
+
+	/** Mapping contexts that were added while the ability was active. */
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<const UInputMappingContext>> ActiveMappingContexts;
+
+	virtual void InitializeInputComponent();
+	virtual void UninitializeInputComponent();
 };

@@ -16,6 +16,20 @@ UExtendedAbilitySystemComponent* UExtendedAbilitySystemStatics::GetExtendedAbili
 	return Cast<UExtendedAbilitySystemComponent>(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor));
 }
 
+FGameplayAbilityTargetDataHandle UExtendedAbilitySystemStatics::AbilityTargetDataFromTransform(const FTransform Transform)
+{
+	FGameplayAbilityTargetingLocationInfo LocationInfo;
+	LocationInfo.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+	LocationInfo.LiteralTransform = Transform;
+
+	FGameplayAbilityTargetData_LocationInfo* TargetData = new FGameplayAbilityTargetData_LocationInfo();
+	TargetData->SourceLocation = LocationInfo;
+	TargetData->TargetLocation = LocationInfo;
+
+	FGameplayAbilityTargetDataHandle Handle(TargetData);
+	return Handle;
+}
+
 FGameplayEffectSpecSet UExtendedAbilitySystemStatics::AssignTagSetByCallerMagnitudeForSet(FGameplayEffectSpecSet EffectSpecSet, FGameplayTag DataTag,
                                                                                           float Magnitude)
 {
