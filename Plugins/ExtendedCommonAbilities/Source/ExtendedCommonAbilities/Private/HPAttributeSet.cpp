@@ -26,23 +26,34 @@ void UHPAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 
 	if (Data.EvaluatedData.Magnitude < 0.f && SourceTags.HasTag(ExtendedCommonAbilitiesTags::TAG_Effect_Type_Damage))
 	{
-		// non-zero damage was dealt, send Event.Damage.Outgoing to the ability system that caused it
-		if (UAbilitySystemComponent* SourceAbilitySystem = Data.EffectSpec.GetContext().GetInstigatorAbilitySystemComponent())
-		{
-			FGameplayEventData Payload;
-			Payload.Target = SourceAbilitySystem->GetAvatarActor();
-			Payload.EventTag = ExtendedCommonAbilitiesTags::TAG_Event_Damage_Outgoing;
-			Payload.ContextHandle = Data.EffectSpec.GetContext();
-			Payload.Instigator = Payload.ContextHandle.GetOriginalInstigator();
-			Payload.InstigatorTags = *Data.EffectSpec.CapturedSourceTags.GetAggregatedTags();
-			Payload.TargetTags = *Data.EffectSpec.CapturedTargetTags.GetAggregatedTags();
-			// damage comes in as negative HP, so Magnitude will be negative,
-			// use the positive value as the event magnitude.
-			Payload.EventMagnitude = -Data.EvaluatedData.Magnitude;
-
-			SourceAbilitySystem->HandleGameplayEvent(ExtendedCommonAbilitiesTags::TAG_Event_Damage_Outgoing, &Payload);
-		}
+		// non-zero damage was dealt, send Event.Damage.Incoming/Outgoing to the receiver/instigator
+		BroadcastDamageEvent(GetOwningAbilitySystemComponent(), ExtendedCommonAbilitiesTags::TAG_Event_Damage_Incoming, Data);
+		BroadcastDamageEvent(Data.EffectSpec.GetContext().GetInstigatorAbilitySystemComponent(), ExtendedCommonAbilitiesTags::TAG_Event_Damage_Outgoing, Data);
 	}
+}
+
+void UHPAttributeSet::BroadcastDamageEvent(UAbilitySystemComponent* TargetAbilitySystem,
+                                           const FGameplayTag& EventTag,
+                                           const FGameplayEffectModCallbackData& Data)
+{
+	if (!TargetAbilitySystem)
+	{
+		return;
+	}
+
+	FGameplayEventData Payload;
+	Payload.Target = TargetAbilitySystem->GetAvatarActor();
+	Payload.EventTag = EventTag;
+
+	Payload.ContextHandle = Data.EffectSpec.GetContext();
+	Payload.Instigator = Payload.ContextHandle.GetOriginalInstigator();
+	Payload.InstigatorTags = *Data.EffectSpec.CapturedSourceTags.GetAggregatedTags();
+	Payload.TargetTags = *Data.EffectSpec.CapturedTargetTags.GetAggregatedTags();
+	// damage comes in as negative HP, so Magnitude will be negative,
+	// use the positive value as the event magnitude.
+	Payload.EventMagnitude = -Data.EvaluatedData.Magnitude;
+
+	TargetAbilitySystem->HandleGameplayEvent(EventTag, &Payload);
 }
 
 void UHPAttributeSet::OnRep_HP(FGameplayAttributeData& OldValue)

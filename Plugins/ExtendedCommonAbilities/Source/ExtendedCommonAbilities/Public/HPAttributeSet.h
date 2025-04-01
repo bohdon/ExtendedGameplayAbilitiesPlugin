@@ -34,4 +34,7 @@ public:
 	virtual void OnRep_MaxHP(FGameplayAttributeData& OldValue);
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+
+protected:
+	virtual void BroadcastDamageEvent(UAbilitySystemComponent* TargetAbilitySystem, const FGameplayTag& EventTag, const FGameplayEffectModCallbackData& Data);
 };
