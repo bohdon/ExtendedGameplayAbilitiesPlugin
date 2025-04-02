@@ -27,13 +27,17 @@ UAbilitySystemComponent* AAbilityPlayerState::GetAbilitySystemComponent() const
 
 void AAbilityPlayerState::SetGenericTeamId(const FGenericTeamId& NewTeamId)
 {
-	if (HasAuthority())
+	if (HasAuthority() && TeamId != NewTeamId)
 	{
+		const FGenericTeamId OldTeamId = TeamId;
+
 		// note that any AIControllers should implement GetGenericTeamId to return this TeamId,
 		// instead of the built-in AIController::TeamID
 		TeamId = NewTeamId;
 
 		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, TeamId, this);
+
+		BroadcastTeamChanged(TeamId, OldTeamId);
 	}
 }
 
@@ -49,6 +53,15 @@ int32 AAbilityPlayerState::GetTeamId() const
 
 void AAbilityPlayerState::OnRep_TeamId(FGenericTeamId OldTeamId)
 {
+	BroadcastTeamChanged(TeamId, OldTeamId);
+}
+
+void AAbilityPlayerState::BroadcastTeamChanged(const FGenericTeamId& NewTeamId, const FGenericTeamId& OldTeamId)
+{
+	const int32 OldIdInt = UCommonTeamStatics::GenericTeamIdToInteger(OldTeamId);
+	const int32 NewIdInt = UCommonTeamStatics::GenericTeamIdToInteger(NewTeamId);
+	OnTeamChangedEvent.Broadcast(this, NewIdInt, OldIdInt);
+	OnTeamChangedEvent_BP.Broadcast(this, NewIdInt, OldIdInt);
 }
 
 void AAbilityPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

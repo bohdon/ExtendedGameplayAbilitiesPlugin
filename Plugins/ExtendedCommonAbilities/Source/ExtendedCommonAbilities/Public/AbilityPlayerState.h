@@ -42,6 +42,16 @@ public:
 	UFUNCTION(BlueprintPure, Category = "PlayerState")
 	int32 GetTeamId() const;
 
+	DECLARE_MULTICAST_DELEGATE_ThreeParams(FTeamChangedDelegate, UObject* /*TeamAgent*/, int32 /*NewTeamId*/, int32 /*OldTeamId*/);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FTeamChangedDynDelegate, UObject*, TeamAgent, int32, NewTeamId, int32, OldTeamId);
+
+	/** Called when this player changes or is assigned a team. */
+	FTeamChangedDelegate OnTeamChangedEvent;
+
+	/** Called when this player changes or is assigned a team. */
+	UPROPERTY(BlueprintAssignable, DisplayName = "OnTeamChangedEvent")
+	FTeamChangedDynDelegate OnTeamChangedEvent_BP;
+
 protected:
 	/** The team this player is on. */
 	UPROPERTY(ReplicatedUsing = OnRep_TeamId)
@@ -49,4 +59,6 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_TeamId(FGenericTeamId OldTeamId);
+
+	virtual void BroadcastTeamChanged(const FGenericTeamId& NewTeamId, const FGenericTeamId& OldTeamId);
 };

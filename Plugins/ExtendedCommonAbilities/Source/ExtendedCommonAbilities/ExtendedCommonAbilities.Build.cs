@@ -18,6 +18,7 @@ public class ExtendedCommonAbilities : ModuleRules
 			"GameplayAbilities",
 			"GameplayMessageRuntime",
 			"GameplayTags",
+			"ModelViewViewModel",
 			"ModularGameplay",
 			"ModularGameplayActors",
 			"NetCore",
