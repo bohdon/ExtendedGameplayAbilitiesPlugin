@@ -91,11 +91,6 @@ void UExtendedGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handl
 
 void UExtendedGameplayAbility::InitializeInputComponent()
 {
-	if (GetInstancingPolicy() == EGameplayAbilityInstancingPolicy::NonInstanced)
-	{
-		return;
-	}
-
 	if (APlayerController* Controller = GetPlayerControllerFromActorInfo())
 	{
 		const UClass* InputClass = Controller->InputComponent ? Controller->InputComponent->GetClass() : UInputSettings::GetDefaultInputComponentClass();
@@ -109,11 +104,6 @@ void UExtendedGameplayAbility::InitializeInputComponent()
 
 void UExtendedGameplayAbility::UninitializeInputComponent()
 {
-	if (GetInstancingPolicy() == EGameplayAbilityInstancingPolicy::NonInstanced)
-	{
-		return;
-	}
-
 	if (InputComponent)
 	{
 		if (APlayerController* Controller = GetPlayerControllerFromActorInfo())
