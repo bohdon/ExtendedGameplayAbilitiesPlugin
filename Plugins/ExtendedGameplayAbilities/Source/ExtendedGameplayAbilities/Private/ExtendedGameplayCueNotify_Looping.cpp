@@ -11,7 +11,6 @@
 #include "TimerManager.h"
 #include "Engine/World.h"
 #include "Stats/Stats.h"
-#include "Stats/Stats2.h"
 
 
 AExtendedGameplayCueNotify_Looping::AExtendedGameplayCueNotify_Looping()
