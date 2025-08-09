@@ -13,6 +13,7 @@ public class ExtendedGameplayAbilities : ModuleRules
 			"AIModule",
 			"Core",
 			"DataRegistry",
+			"DeveloperSettings",
 			"EnhancedInput",
 			"GameplayAbilities",
 			"GameplayTags",
@@ -25,7 +26,6 @@ public class ExtendedGameplayAbilities : ModuleRules
 		{
 			"CoreUObject",
 			"Engine",
-			"Settings",
 			"Slate",
 			"SlateCore",
 		});

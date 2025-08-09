@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DeveloperSettings.h"
 #include "Templates/SubclassOf.h"
-#include "UObject/Object.h"
 #include "ExtendedGameplayAbilitiesSettings.generated.h"
 
 class UGameplayEffect;
@@ -14,12 +14,14 @@ class UGameplayEffect;
  * Settings for extended gameplay abilities.
  */
 UCLASS(Config = "Game", DefaultConfig, DisplayName = "Extended Gameplay Abilities")
-class EXTENDEDGAMEPLAYABILITIES_API UExtendedGameplayAbilitiesSettings : public UObject
+class EXTENDEDGAMEPLAYABILITIES_API UExtendedGameplayAbilitiesSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 
 public:
 	UExtendedGameplayAbilitiesSettings();
+
+	virtual FName GetCategoryName() const override { return TEXT("Plugins"); }
 
 	UPROPERTY(Config, EditAnywhere, NoClear, Meta = (AllowAbstract = false), Category = "General")
 	TSubclassOf<UGameplayEffect> DefaultDynamicCooldownEffectClass;
