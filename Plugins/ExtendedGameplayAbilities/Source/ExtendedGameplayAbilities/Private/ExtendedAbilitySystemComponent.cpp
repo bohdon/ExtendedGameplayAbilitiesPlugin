@@ -94,7 +94,6 @@ void UExtendedAbilitySystemComponent::InitializeComponent()
 	for (const FGameplayTag& DefaultTag : DefaultTags)
 	{
 		SetLooseGameplayTagCount(DefaultTag, 1);
-		SetReplicatedLooseGameplayTagCount(DefaultTag, 1);
 	}
 
 	// apply startup ability sets
