@@ -1,7 +1,7 @@
 ﻿// Copyright Bohdon Sayre, All Rights Reserved.
 
 
-#include "ExtendedCommonAbilities.h"
+#include "ExtendedCommonAbilitiesTags.h"
 
 
 namespace ExtendedCommonAbilities::GameplayTags
