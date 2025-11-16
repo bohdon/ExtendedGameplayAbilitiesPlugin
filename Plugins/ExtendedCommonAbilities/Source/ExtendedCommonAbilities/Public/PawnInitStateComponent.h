@@ -18,8 +18,9 @@ class UInputComponent;
  * in your own pawn subclasses easily.
  */
 UCLASS(Meta = (BlueprintSpawnableComponent))
-class EXTENDEDCOMMONABILITIES_API UPawnInitStateComponent : public UPawnComponent,
-                                                            public IGameFrameworkInitStateInterface
+class EXTENDEDCOMMONABILITIES_API UPawnInitStateComponent
+	: public UPawnComponent,
+	  public IGameFrameworkInitStateInterface
 {
 	GENERATED_BODY()
 
@@ -31,7 +32,7 @@ public:
 	 * If Pawns may exist and be used without a controller set this to false.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InitState")
-	bool bWaitForController;
+	bool bWaitForController = true;
 
 	/** The name of this actor feature. */
 	static FName NAME_FeatureName;

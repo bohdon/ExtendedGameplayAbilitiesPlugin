@@ -14,8 +14,7 @@ FName UPawnInitStateComponent::NAME_FeatureName(TEXT("PawnInitState"));
 
 
 UPawnInitStateComponent::UPawnInitStateComponent(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer),
-	  bWaitForController(true)
+	: Super(ObjectInitializer)
 {
 }
 
@@ -25,10 +24,10 @@ void UPawnInitStateComponent::CheckDefaultInitialization()
 	CheckDefaultInitializationForImplementers();
 
 	static const TArray<FGameplayTag> StateChain = {
-		ExtendedCommonAbilitiesTags::TAG_InitState_Spawned,
-		ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable,
-		ExtendedCommonAbilitiesTags::TAG_InitState_DataInitialized,
-		ExtendedCommonAbilitiesTags::TAG_InitState_GameplayReady
+		ExtendedCommonAbilities::GameplayTags::InitState_Spawned,
+		ExtendedCommonAbilities::GameplayTags::InitState_DataAvailable,
+		ExtendedCommonAbilities::GameplayTags::InitState_DataInitialized,
+		ExtendedCommonAbilities::GameplayTags::InitState_GameplayReady
 	};
 
 	// attempt to progress this component's init state
@@ -37,23 +36,23 @@ void UPawnInitStateComponent::CheckDefaultInitialization()
 
 bool UPawnInitStateComponent::CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const
 {
-	if (!CurrentState.IsValid() && DesiredState == ExtendedCommonAbilitiesTags::TAG_InitState_Spawned)
+	if (!CurrentState.IsValid() && DesiredState == ExtendedCommonAbilities::GameplayTags::InitState_Spawned)
 	{
 		// just need the pawn to exist
 		return GetPawn<APawn>() != nullptr;
 	}
-	else if (CurrentState == ExtendedCommonAbilitiesTags::TAG_InitState_Spawned &&
-		DesiredState == ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable)
+	else if (CurrentState == ExtendedCommonAbilities::GameplayTags::InitState_Spawned &&
+		DesiredState == ExtendedCommonAbilities::GameplayTags::InitState_DataAvailable)
 	{
 		return CheckDataAvailable(Manager);
 	}
-	else if (CurrentState == ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable &&
-		DesiredState == ExtendedCommonAbilitiesTags::TAG_InitState_DataInitialized)
+	else if (CurrentState == ExtendedCommonAbilities::GameplayTags::InitState_DataAvailable &&
+		DesiredState == ExtendedCommonAbilities::GameplayTags::InitState_DataInitialized)
 	{
 		return CheckDataInitialized(Manager);
 	}
-	else if (CurrentState == ExtendedCommonAbilitiesTags::TAG_InitState_DataInitialized &&
-		DesiredState == ExtendedCommonAbilitiesTags::TAG_InitState_GameplayReady)
+	else if (CurrentState == ExtendedCommonAbilities::GameplayTags::InitState_DataInitialized &&
+		DesiredState == ExtendedCommonAbilities::GameplayTags::InitState_GameplayReady)
 	{
 		return true;
 	}
@@ -66,7 +65,7 @@ void UPawnInitStateComponent::OnActorInitStateChanged(const FActorInitStateChang
 	// if another feature is now in DataAvailable, check if we can progress state
 	if (Params.FeatureName != NAME_FeatureName)
 	{
-		if (Params.FeatureState == ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable)
+		if (Params.FeatureState == ExtendedCommonAbilities::GameplayTags::InitState_DataAvailable)
 		{
 			CheckDefaultInitialization();
 		}
@@ -98,7 +97,7 @@ bool UPawnInitStateComponent::CheckDataInitialized(UGameFrameworkComponentManage
 	check(Pawn);
 
 	// wait for any other features to reach DataAvailable state
-	return Manager->HaveAllFeaturesReachedInitState(Pawn, ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable);
+	return Manager->HaveAllFeaturesReachedInitState(Pawn, ExtendedCommonAbilities::GameplayTags::InitState_DataAvailable);
 }
 
 void UPawnInitStateComponent::OnRegister()
@@ -113,11 +112,11 @@ void UPawnInitStateComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// listen for pawn controller changes
-	GetGameInstance<UGameInstance>()->GetOnPawnControllerChanged().AddUniqueDynamic(this, &UPawnInitStateComponent::OnAnyPawnControllerChanged);
+	GetGameInstance<UGameInstance>()->GetOnPawnControllerChanged().AddUniqueDynamic(this, &ThisClass::OnAnyPawnControllerChanged);
 
 	BindOnActorInitStateChanged(NAME_None, FGameplayTag(), false);
 
-	const bool bSuccess = TryToChangeInitState(ExtendedCommonAbilitiesTags::TAG_InitState_Spawned);
+	const bool bSuccess = TryToChangeInitState(ExtendedCommonAbilities::GameplayTags::InitState_Spawned);
 	ensureMsgf(bSuccess, TEXT("PawnInitStateComponent on %s failed to transition to Spawned init state."), *GetNameSafe(GetOwner()));
 
 	CheckDefaultInitialization();

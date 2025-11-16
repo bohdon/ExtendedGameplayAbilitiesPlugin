@@ -17,14 +17,14 @@ UCommonGameplayAbility_Death::UCommonGameplayAbility_Death(const FObjectInitiali
 	bServerRespectsRemoteAbilityCancellation = false;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 
-	CancelAbilityIgnoreTags = FGameplayTagContainer(ExtendedCommonAbilitiesTags::TAG_Ability_Trait_PersistOnDeath);
-	RemoveEffectIgnoreTags = FGameplayTagContainer(ExtendedCommonAbilitiesTags::TAG_Effect_Trait_PersistOnDeath);
+	CancelAbilityIgnoreTags = FGameplayTagContainer(ExtendedCommonAbilities::GameplayTags::Ability_Trait_PersistOnDeath);
+	RemoveEffectIgnoreTags = FGameplayTagContainer(ExtendedCommonAbilities::GameplayTags::Effect_Trait_PersistOnDeath);
 
 	if (HasAnyFlags(RF_ClassDefaultObject))
 	{
 		// setup trigger by gameplay event
 		FAbilityTriggerData TriggerData;
-		TriggerData.TriggerTag = ExtendedCommonAbilitiesTags::TAG_Event_Death;
+		TriggerData.TriggerTag = ExtendedCommonAbilities::GameplayTags::Event_Death;
 		TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 		AbilityTriggers.Add(TriggerData);
 	}

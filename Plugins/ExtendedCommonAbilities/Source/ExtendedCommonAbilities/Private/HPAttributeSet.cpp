@@ -24,11 +24,11 @@ void UHPAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 {
 	const FGameplayTagContainer SourceTags = *Data.EffectSpec.CapturedSourceTags.GetAggregatedTags();
 
-	if (Data.EvaluatedData.Magnitude < 0.f && SourceTags.HasTag(ExtendedCommonAbilitiesTags::TAG_Effect_Type_Damage))
+	if (Data.EvaluatedData.Magnitude < 0.f && SourceTags.HasTag(ExtendedCommonAbilities::GameplayTags::Effect_Type_Damage))
 	{
 		// non-zero damage was dealt, send Event.Damage.Incoming/Outgoing to the receiver/instigator
-		BroadcastDamageEvent(GetOwningAbilitySystemComponent(), ExtendedCommonAbilitiesTags::TAG_Event_Damage_Incoming, Data);
-		BroadcastDamageEvent(Data.EffectSpec.GetContext().GetInstigatorAbilitySystemComponent(), ExtendedCommonAbilitiesTags::TAG_Event_Damage_Outgoing, Data);
+		BroadcastDamageEvent(GetOwningAbilitySystemComponent(), ExtendedCommonAbilities::GameplayTags::Event_Damage_Incoming, Data);
+		BroadcastDamageEvent(Data.EffectSpec.GetContext().GetInstigatorAbilitySystemComponent(), ExtendedCommonAbilities::GameplayTags::Event_Damage_Outgoing, Data);
 	}
 }
 

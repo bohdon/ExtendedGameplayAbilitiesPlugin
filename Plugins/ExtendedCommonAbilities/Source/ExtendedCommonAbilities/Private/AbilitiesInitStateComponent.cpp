@@ -92,8 +92,8 @@ void UAbilitiesInitStateComponent::UninitializeAbilitySystem()
 
 void UAbilitiesInitStateComponent::HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState)
 {
-	if (CurrentState == ExtendedCommonAbilitiesTags::TAG_InitState_DataAvailable &&
-		DesiredState == ExtendedCommonAbilitiesTags::TAG_InitState_DataInitialized)
+	if (CurrentState == ExtendedCommonAbilities::GameplayTags::InitState_DataAvailable &&
+		DesiredState == ExtendedCommonAbilities::GameplayTags::InitState_DataInitialized)
 	{
 		// transitioning to DataInitialized
 
