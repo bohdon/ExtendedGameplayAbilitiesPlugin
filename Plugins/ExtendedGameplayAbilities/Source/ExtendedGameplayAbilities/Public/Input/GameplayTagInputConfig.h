@@ -21,7 +21,7 @@ struct FGameplayTagInputAction
 	TObjectPtr<UInputAction> InputAction = nullptr;
 
 	/** The input tag to trigger from this input. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InputTag")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InputTag", meta = (GameplayTagFilter = "InputTag"))
 	FGameplayTag InputTag;
 };
 

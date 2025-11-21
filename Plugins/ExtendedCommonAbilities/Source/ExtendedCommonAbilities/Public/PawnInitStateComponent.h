@@ -28,11 +28,18 @@ public:
 	UPawnInitStateComponent(const FObjectInitializer& ObjectInitializer);
 
 	/**
-	 * If true, a Controller is required before transitioning to the DataAvailable state.
+	 * Wait for a valid Controller before transitioning to the DataAvailable state.
 	 * If Pawns may exist and be used without a controller set this to false.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InitState")
 	bool bWaitForController = true;
+
+	/**
+	 * Wait for an input component to be setup before transitioning to the DataAvailable state.
+	 * Only applies to locally-controlled player pawns.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InitState")
+	bool bWaitForInputComponent = true;
 
 	/** The name of this actor feature. */
 	static FName NAME_FeatureName;

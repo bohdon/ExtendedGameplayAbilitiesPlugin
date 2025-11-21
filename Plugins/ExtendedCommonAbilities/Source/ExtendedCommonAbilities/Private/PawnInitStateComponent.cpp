@@ -79,10 +79,19 @@ bool UPawnInitStateComponent::CheckDataAvailable(UGameFrameworkComponentManager*
 
 	const bool bHasAuthority = Pawn->HasAuthority();
 	const bool bIsLocallyControlled = Pawn->IsLocallyControlled();
+	const bool bIsBot = Pawn->IsBotControlled();
 
 	if (bWaitForController && (bHasAuthority || bIsLocallyControlled))
 	{
 		if (!GetController<AController>())
+		{
+			return false;
+		}
+	}
+
+	if (bWaitForInputComponent && bIsLocallyControlled && !bIsBot)
+	{
+		if (!Pawn->InputComponent)
 		{
 			return false;
 		}
