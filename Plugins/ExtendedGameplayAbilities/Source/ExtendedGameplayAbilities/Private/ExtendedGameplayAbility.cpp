@@ -78,12 +78,12 @@ void UExtendedGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handl
 	if (bEnableInputBindings)
 	{
 		UninitializeInputComponent();
+	}
 
-		TArray<TObjectPtr<const UInputMappingContext>> MappingContextsToRemove = ActiveMappingContexts;
-		for (const TObjectPtr<const UInputMappingContext>& MappingContext : MappingContextsToRemove)
-		{
-			RemoveInputMappingContext(MappingContext);
-		}
+	TArray<TObjectPtr<const UInputMappingContext>> MappingContextsToRemove = ActiveMappingContexts;
+	for (const TObjectPtr<const UInputMappingContext>& MappingContext : MappingContextsToRemove)
+	{
+		RemoveInputMappingContext(MappingContext);
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
