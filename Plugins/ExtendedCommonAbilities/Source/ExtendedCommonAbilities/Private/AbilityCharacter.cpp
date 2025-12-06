@@ -18,6 +18,28 @@ AAbilityCharacter::AAbilityCharacter(const FObjectInitializer& ObjectInitializer
 	PawnAbilityInputComponent = CreateDefaultSubobject<UPawnAbilityInputComponent>(PawnAbilityInputComponentName);
 }
 
+void AAbilityCharacter::PostLoad()
+{
+	Super::PostLoad();
+
+	if (!AbilityInputConfigs_DEPRECATED.IsEmpty())
+	{
+		if (UPawnAbilityInputComponent* AbilityInputComp = GetPawnAbilityInputComponent())
+		{
+			if (!AbilityInputComp->DefaultInputConfig)
+			{
+				AbilityInputComp->DefaultInputConfig = AbilityInputConfigs_DEPRECATED[0];
+			}
+		}
+
+		UE_CLOG(AbilityInputConfigs_DEPRECATED.Num() > 1, LogCommonAbilities, Warning,
+		        TEXT("Multiple AbilityInputConfigs on AAbilityCharacter are deprecated, "
+			        "add additional configs at runtime with UPawnAbilityInputComponent::AddInputConfig"));
+
+		AbilityInputConfigs_DEPRECATED.Empty();
+	}
+}
+
 void AAbilityCharacter::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
 	if (const UAbilitySystemComponent* AbilitySystem = GetAbilitySystemComponent())

@@ -33,6 +33,8 @@ class EXTENDEDCOMMONABILITIES_API AAbilityCharacter
 public:
 	AAbilityCharacter(const FObjectInitializer& ObjectInitializer);
 
+	virtual void PostLoad() override;
+
 	// IGameplayTagAssetInterface
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 	virtual bool HasMatchingGameplayTag(FGameplayTag TagToCheck) const override;
@@ -52,13 +54,9 @@ protected:
 	virtual void OnInitializeAbilitySystem();
 	virtual void OnUninitializeAbilitySystem();
 
-public:
-	/**
-	 * Default set of ability input configs used to map input actions to gameplay tags.
-	 * InputAbilityTagPressed/Released will be called based on the matching input actions.
-	 */
-	UPROPERTY(EditAnywhere, Category = "Abilities", meta = (DeprecatedProperty))
-	TArray<TObjectPtr<UGameplayTagInputConfig>> AbilityInputConfigs;
+	/** DEPRECATED: Use UPawnAbilityInputComponent::DefaultInputConfig instead. */
+	UPROPERTY()
+	TArray<TObjectPtr<UGameplayTagInputConfig>> AbilityInputConfigs_DEPRECATED;
 
 	static FName PawnAbilityInputComponentName;
 };
