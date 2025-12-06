@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ModularCharacter.h"
-#include "InitStateCharacter.generated.h"
+#include "ModularPawn.h"
+#include "InitStatePawn.generated.h"
 
 class UPawnInitStateComponent;
 
 
 UCLASS()
-class EXTENDEDCOMMONABILITIES_API AInitStateCharacter : public AModularCharacter
+class EXTENDEDCOMMONABILITIES_API AInitStatePawn : public AModularPawn
 {
 	GENERATED_BODY()
 
@@ -18,7 +18,7 @@ class EXTENDEDCOMMONABILITIES_API AInitStateCharacter : public AModularCharacter
 	TObjectPtr<UPawnInitStateComponent> InitStateComponent;
 
 public:
-	AInitStateCharacter(const FObjectInitializer& ObjectInitializer);
+	AInitStatePawn(const FObjectInitializer& ObjectInitializer);
 
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;

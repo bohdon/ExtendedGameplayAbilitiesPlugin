@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagAssetInterface.h"
-#include "InitStateCharacter.h"
-#include "AbilityCharacter.generated.h"
+#include "InitStatePawn.h"
+#include "AbilityPawn.generated.h"
 
 class UAbilitiesInitStateComponent;
 class UGameplayTagInputConfig;
@@ -14,13 +14,15 @@ class UPawnAbilityInputComponent;
 
 
 /**
- * Base class for characters that use ability systems.
+ * Base class for pawns that use ability systems.
  * Uses the AbilitiesInitStateComponent to ensure ability system initialization happens
  * in a reliable way, regardless of the use of PlayerStates or other desired setups.
+ *
+ * Derived from the AbilityCharacter class
  */
 UCLASS()
-class EXTENDEDCOMMONABILITIES_API AAbilityCharacter
-	: public AInitStateCharacter,
+class EXTENDEDCOMMONABILITIES_API AAbilityPawn
+	: public AInitStatePawn,
 	  public IGameplayTagAssetInterface,
 	  public IAbilitySystemInterface
 {
@@ -31,7 +33,7 @@ class EXTENDEDCOMMONABILITIES_API AAbilityCharacter
 	TObjectPtr<UPawnAbilityInputComponent> PawnAbilityInputComponent;
 
 public:
-	AAbilityCharacter(const FObjectInitializer& ObjectInitializer);
+	AAbilityPawn(const FObjectInitializer& ObjectInitializer);
 
 	virtual void PostLoad() override;
 
