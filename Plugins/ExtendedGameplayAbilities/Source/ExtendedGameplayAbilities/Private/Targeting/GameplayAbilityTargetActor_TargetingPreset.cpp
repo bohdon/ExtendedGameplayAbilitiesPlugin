@@ -225,6 +225,9 @@ void AGameplayAbilityTargetActor_TargetingPreset::UpdateTargetData()
 	{
 		SetReticleTransformFromTargetData(Reticle, TargetData);
 	}
+
+	OnTargetDataUpdatedEvent.Broadcast(TargetData);
+	OnTargetDataUpdatedEvent_BP.Broadcast(TargetData);
 }
 
 void AGameplayAbilityTargetActor_TargetingPreset::CreateTargetDataFromRequest(FTargetingRequestHandle TargetingRequest,

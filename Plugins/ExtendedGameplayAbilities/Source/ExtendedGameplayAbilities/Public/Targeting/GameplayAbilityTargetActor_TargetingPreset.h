@@ -65,6 +65,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Targeting")
 	void PerformTargeting();
 
+	DECLARE_MULTICAST_DELEGATE_OneParam(FTargetDataUpdatedDelegate, const FGameplayAbilityTargetDataHandle& /*TargetData*/);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTargetDataUpdatedDynDelegate, const FGameplayAbilityTargetDataHandle&, TargeData);
+
+	/** Called everytime the target data is updated after a targeting request is completed. */
+	FTargetDataUpdatedDelegate OnTargetDataUpdatedEvent;
+
+	/** Called everytime the target data is updated after a targeting request is completed. */
+	UPROPERTY(BlueprintAssignable, DisplayName = "OnTargetDataUpdatedEvent")
+	FTargetDataUpdatedDynDelegate OnTargetDataUpdatedEvent_BP;
+
 	virtual void SpawnReticleActor();
 
 	virtual void StartTargeting(UGameplayAbility* Ability) override;
