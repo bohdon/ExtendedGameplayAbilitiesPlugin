@@ -90,7 +90,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CommonAbilities|Health")
 	void ClearAbilitySystem();
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FHealthStateChangedDelegate, AActor* /*OwningActor*/);
+	DECLARE_MULTICAST_DELEGATE(FHealthStateChangedDelegate);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHealthStateChangedDynDelegate, AActor*, OwningActor);
 
 	/** Called the moment the character has died. */

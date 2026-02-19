@@ -34,6 +34,7 @@ public:
 	AAbilityCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void PostLoad() override;
+	virtual void PostInitializeComponents() override;
 
 	// IGameplayTagAssetInterface
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
@@ -56,8 +57,6 @@ public:
 	UPawnAbilityInputComponent* GetPawnAbilityInputComponent() const { return PawnAbilityInputComponent; }
 
 protected:
-	virtual void BeginPlay() override;
-
 	virtual void OnInitializeAbilitySystem();
 	virtual void OnUninitializeAbilitySystem();
 

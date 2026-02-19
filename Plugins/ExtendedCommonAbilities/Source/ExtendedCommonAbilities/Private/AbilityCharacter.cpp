@@ -85,9 +85,9 @@ UAbilitiesInitStateComponent* AAbilityCharacter::GetAbilitiesInitStateComponent(
 	return Cast<UAbilitiesInitStateComponent>(GetInitStateComponent());
 }
 
-void AAbilityCharacter::BeginPlay()
+void AAbilityCharacter::PostInitializeComponents()
 {
-	Super::BeginPlay();
+	Super::PostInitializeComponents();
 
 	GetAbilitiesInitStateComponent()->OnAbilitySystemInitializedEvent.AddUObject(this, &ThisClass::OnInitializeAbilitySystem);
 	GetAbilitiesInitStateComponent()->OnAbilitySystemUninitializedEvent.AddUObject(this, &ThisClass::OnUninitializeAbilitySystem);
