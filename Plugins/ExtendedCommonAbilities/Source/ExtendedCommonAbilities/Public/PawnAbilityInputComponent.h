@@ -40,6 +40,10 @@ public:
 	/** Removes a contextual input config if it has been added. */
 	virtual void RemoveInputConfig(const UGameplayTagInputConfig* InputConfig);
 
+	/** Return an input action that is mapped to a gameplay tag. */
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "InputTag")
+	const UInputAction* FindInputActionByTag(const FGameplayTag& InputTag) const;
+
 protected:
 	virtual void OnAbilitySystemInitialized();
 
@@ -75,6 +79,10 @@ public:
 protected:
 	/** Used to detect the first time an input tag action is triggered. */
 	TArray<FGameplayTag> TriggeredInputTags;
+
+	/** List of actively bound input configs. */
+	UPROPERTY(Transient)
+	TSet<TObjectPtr<const UGameplayTagInputConfig>> ActiveInputConfigs;
 
 	/** Cached reference to the ability system. */
 	UPROPERTY(Transient)

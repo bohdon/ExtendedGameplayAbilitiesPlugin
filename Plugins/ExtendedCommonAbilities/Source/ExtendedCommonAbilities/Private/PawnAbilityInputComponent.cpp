@@ -31,6 +31,11 @@ void UPawnAbilityInputComponent::InitializeComponent()
 
 void UPawnAbilityInputComponent::AddInputConfig(const UGameplayTagInputConfig* InputConfig)
 {
+	if (!InputConfig)
+	{
+		return;
+	}
+
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(GetOwner()->InputComponent))
 	{
 		BindAbilityActions(EnhancedInput, InputConfig);
@@ -39,6 +44,19 @@ void UPawnAbilityInputComponent::AddInputConfig(const UGameplayTagInputConfig* I
 
 void UPawnAbilityInputComponent::RemoveInputConfig(const UGameplayTagInputConfig* InputConfig)
 {
+	// TODO: implement
+}
+
+const UInputAction* UPawnAbilityInputComponent::FindInputActionByTag(const FGameplayTag& InputTag) const
+{
+	for (const TObjectPtr<const UGameplayTagInputConfig>& InputConfig : ActiveInputConfigs)
+	{
+		if (const UInputAction* InputAction = InputConfig->FindInputActionByTag(InputTag))
+		{
+			return InputAction;
+		}
+	}
+	return nullptr;
 }
 
 void UPawnAbilityInputComponent::OnAbilitySystemInitialized()
@@ -56,6 +74,8 @@ void UPawnAbilityInputComponent::OnAbilitySystemInitialized()
 
 void UPawnAbilityInputComponent::BindAbilityActions(UEnhancedInputComponent* EnhancedInput, const UGameplayTagInputConfig* InputConfig)
 {
+	ActiveInputConfigs.Add(InputConfig);
+
 	for (const FGameplayTagInputAction& InputAction : InputConfig->InputActions)
 	{
 		if (!InputAction.InputAction || !InputAction.InputTag.IsValid())
