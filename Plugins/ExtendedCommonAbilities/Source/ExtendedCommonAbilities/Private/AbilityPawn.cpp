@@ -46,6 +46,10 @@ void AAbilityPawn::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) con
 	{
 		AbilitySystem->GetOwnedGameplayTags(TagContainer);
 	}
+	else
+	{
+		TagContainer.Reset();
+	}
 }
 
 bool AAbilityPawn::HasMatchingGameplayTag(FGameplayTag TagToCheck) const
