@@ -37,8 +37,8 @@ void UAnimNotifyState_GameplayEventCollision::NotifyEnd(USkeletalMeshComponent* 
 FString UAnimNotifyState_GameplayEventCollision::GetNotifyName_Implementation() const
 {
 	return FString::Printf(TEXT("%s Collision -> %s"),
-	                       *StaticEnum<EGameplayEventCollisionShapeType>()->GetNameStringByValue(static_cast<int64>(ShapeType)),
-	                       *BeginOverlapEventTag.ToString());
+		*StaticEnum<EGameplayEventCollisionShapeType>()->GetNameStringByValue(static_cast<int64>(ShapeType)),
+		*BeginOverlapEventTag.ToString());
 }
 
 float UAnimNotifyState_GameplayEventCollision::GetShapeRadius() const
@@ -170,6 +170,24 @@ void UAnimNotifyState_GameplayEventCollision::OnBeginOverlap(UPrimitiveComponent
 		/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
 		FGameplayAbilityTargetData_SingleTargetHit* ReturnData = new FGameplayAbilityTargetData_SingleTargetHit();
 		ReturnData->HitResult = SweepResult;
+
+		// make sure the hit result can be used as target data. if the other component caused
+		// the overlap by moving or spawning itself, hit object will be our owner, so correct it.
+		if (ReturnData->HitResult.GetHitObjectHandle().GetCachedActor() != OtherActor)
+		{
+			// don't set HitResult.Component, so others can determine the nature of the original hit result if needed
+			ReturnData->HitResult.HitObjectHandle = OtherActor;
+		}
+
+		// when the overlap comes from this primitive moving, it will never be from a sweep.
+		// inject some location data to make the hit result more useful
+		if (!bFromSweep)
+		{
+			ReturnData->HitResult.Location = OverlappedComponent->GetComponentLocation();
+			ReturnData->HitResult.ImpactPoint = ReturnData->HitResult.Location;
+			ReturnData->HitResult.TraceEnd = ReturnData->HitResult.Location;
+		}
+
 		Payload.TargetData.Add(ReturnData);
 
 		FScopedPredictionWindow NewScopedWindow(AbilitySystem, true);
