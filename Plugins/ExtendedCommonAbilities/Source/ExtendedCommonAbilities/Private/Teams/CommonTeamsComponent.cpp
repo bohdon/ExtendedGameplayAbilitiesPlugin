@@ -35,13 +35,14 @@ void UCommonTeamsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UCommonTeamsComponent::StartTeamSetup()
 {
-#if WITH_SERVER_CODE
 	if (HasAuthority())
 	{
 		// setup immediately, you may want to delay this until everything is ready in some situations
-		ServerAssignTeamsForPlayers();
+		AssignTeamsForPlayers();
+
+		// listen for new player logins
+		FGameModeEvents::GameModePostLoginEvent.AddUObject(this, &UCommonTeamsComponent::OnPlayerPostLogin);
 	}
-#endif
 }
 
 int32 UCommonTeamsComponent::SelectTeamForPlayer_Implementation(APlayerState* PlayerState)
@@ -186,20 +187,22 @@ ECommonTeamComparison UCommonTeamsComponent::CompareTeams(const UObject* ObjectA
 	return TeamIdA == TeamIdB ? ECommonTeamComparison::SameTeam : ECommonTeamComparison::DifferentTeams;
 }
 
-#if WITH_SERVER_CODE
-void UCommonTeamsComponent::ServerAssignTeamsForPlayers()
+void UCommonTeamsComponent::AssignTeamsForPlayers()
 {
 	AGameStateBase* GameState = GetGameStateChecked<AGameStateBase>();
 	for (const TObjectPtr<APlayerState>& PlayerState : GameState->PlayerArray)
 	{
-		ServerAssignTeamForPlayer(PlayerState);
+		AssignTeamForPlayer(PlayerState);
 	}
-
-	FGameModeEvents::GameModePostLoginEvent.AddUObject(this, &UCommonTeamsComponent::OnPlayerPostLogin);
 }
 
-void UCommonTeamsComponent::ServerAssignTeamForPlayer(APlayerState* PlayerState)
+void UCommonTeamsComponent::AssignTeamForPlayer(APlayerState* PlayerState)
 {
+	if (!ensure(HasAuthority()))
+	{
+		return;
+	}
+
 	if (IGenericTeamAgentInterface* TeamInterface = Cast<IGenericTeamAgentInterface>(PlayerState))
 	{
 		const FGenericTeamId TeamId = UCommonTeamStatics::IntegerToGenericTeamId(SelectTeamForPlayer(PlayerState));
@@ -211,7 +214,6 @@ void UCommonTeamsComponent::OnPlayerPostLogin(AGameModeBase* GameMode, APlayerCo
 {
 	if (NewPlayer->PlayerState)
 	{
-		ServerAssignTeamForPlayer(NewPlayer->PlayerState);
+		AssignTeamForPlayer(NewPlayer->PlayerState);
 	}
 }
-#endif

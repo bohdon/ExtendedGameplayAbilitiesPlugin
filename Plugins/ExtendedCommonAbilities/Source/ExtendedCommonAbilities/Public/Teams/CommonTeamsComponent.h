@@ -62,22 +62,22 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	/** Select and assign teams for all player states. */
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Teams")
+	virtual void AssignTeamsForPlayers();
+
+	/** Select and assign a team to a player state. */
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Teams")
+	virtual void AssignTeamForPlayer(APlayerState* PlayerState);
+
 protected:
 	/** Called during BeginPlay to start setting up teams. */
 	virtual void StartTeamSetup();
 
-	/** Return which team a player should be assigned to. */
+	/** Return which team a player state should be assigned to (should consider both players and AI). */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Teams")
 	int32 SelectTeamForPlayer(APlayerState* PlayerState);
 
-#if WITH_SERVER_CODE
-	/** Assign all player states to teams. */
-	virtual void ServerAssignTeamsForPlayers();
-
-	/** Select and assign a team to a player state. */
-	virtual void ServerAssignTeamForPlayer(APlayerState* PlayerState);
-
 	/** Called when a player logs in. */
 	virtual void OnPlayerPostLogin(AGameModeBase* GameMode, APlayerController* NewPlayer);
-#endif
 };

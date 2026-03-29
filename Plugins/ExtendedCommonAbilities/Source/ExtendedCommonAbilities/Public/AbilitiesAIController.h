@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "AIController.h"
 #include "GameplayTagAssetInterface.h"
+#include "ModularAIController.h"
 #include "AbilitiesAIController.generated.h"
 
 
@@ -14,14 +14,15 @@
  * Implements the ability system and gameplay tag interfaces.
  */
 UCLASS()
-class EXTENDEDCOMMONABILITIES_API AAbilitiesAIController : public AAIController,
-                                                           public IAbilitySystemInterface,
-                                                           public IGameplayTagAssetInterface
+class EXTENDEDCOMMONABILITIES_API AAbilitiesAIController
+	: public AModularAIController,
+	  public IAbilitySystemInterface,
+	  public IGameplayTagAssetInterface
 {
 	GENERATED_BODY()
 
 public:
-	AAbilitiesAIController();
+	AAbilitiesAIController(const FObjectInitializer& ObjectInitializer);
 
 	// IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -31,4 +32,10 @@ public:
 	virtual bool HasMatchingGameplayTag(FGameplayTag TagToCheck) const override;
 	virtual bool HasAllMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const override;
 	virtual bool HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const override;
+
+	// IGenericTeamAgentInterface
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamId) override;
+
+	virtual void BeginPlay() override;
 };

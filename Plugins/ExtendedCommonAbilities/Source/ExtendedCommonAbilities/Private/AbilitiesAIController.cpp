@@ -3,12 +3,14 @@
 
 #include "AbilitiesAIController.h"
 
+#include "AbilityPlayerState.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "GameFramework/PlayerState.h"
 
 
-AAbilitiesAIController::AAbilitiesAIController()
+AAbilitiesAIController::AAbilitiesAIController(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bWantsPlayerState = true;
@@ -56,4 +58,30 @@ bool AAbilitiesAIController::HasAnyMatchingGameplayTags(const FGameplayTagContai
 		return AbilitySystem->HasAnyMatchingGameplayTags(TagContainer);
 	}
 	return false;
+}
+
+FGenericTeamId AAbilitiesAIController::GetGenericTeamId() const
+{
+	// use the team ID of the ability player state (not AAIController::TeamID),
+	// since the player state adds team change events
+	const AAbilityPlayerState* AbilityPlayerState = GetPlayerState<AAbilityPlayerState>();
+	return AbilityPlayerState ? AbilityPlayerState->GetGenericTeamId() : FGenericTeamId();
+}
+
+void AAbilitiesAIController::SetGenericTeamId(const FGenericTeamId& NewTeamId)
+{
+	if (AAbilityPlayerState* AbilityPlayerState = GetPlayerState<AAbilityPlayerState>())
+	{
+		AbilityPlayerState->SetGenericTeamId(NewTeamId);
+	}
+}
+
+void AAbilitiesAIController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (HasAuthority())
+	{
+		
+	}
 }
