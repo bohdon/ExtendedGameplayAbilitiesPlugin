@@ -12,11 +12,11 @@ public class ExtendedCommonAbilities : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"AIModule",
+			"AsyncMessageSystem",
 			"Core",
 			"EnhancedInput",
 			"ExtendedGameplayAbilities",
 			"GameplayAbilities",
-			"GameplayMessageRuntime",
 			"GameplayTags",
 			"ModelViewViewModel",
 			"ModularGameplay",

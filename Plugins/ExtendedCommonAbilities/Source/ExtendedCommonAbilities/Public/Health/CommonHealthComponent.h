@@ -112,7 +112,10 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystem;
 
+public:
 	virtual void InitializeComponent() override;
+
+protected:
 	virtual void OnUnregister() override;
 
 	void ClearGameplayTags();

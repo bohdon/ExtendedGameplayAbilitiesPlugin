@@ -72,5 +72,4 @@ DerivedDataCache/*
 *.ddargs.json
 
 # ignore external plugins
-Plugins/GameplayMessageRouter
 Plugins/ModularGameplayActors

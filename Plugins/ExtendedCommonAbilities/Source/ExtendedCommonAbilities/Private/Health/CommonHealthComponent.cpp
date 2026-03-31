@@ -6,12 +6,14 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
+#include "AsyncMessageSystemBase.h"
+#include "AsyncMessageWorldSubsystem.h"
 #include "ExtendedCommonAbilitiesTags.h"
 #include "GameplayEffectExtension.h"
 #include "HPAttributeSet.h"
 #include "NativeGameplayTags.h"
-#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Net/UnrealNetwork.h"
+#include "StructUtils/InstancedStruct.h"
 
 
 UCommonHealthComponent::UCommonHealthComponent(const FObjectInitializer& ObjectInitializer)
@@ -94,7 +96,6 @@ void UCommonHealthComponent::TriggerDeathFromSelfDestruct()
 
 void UCommonHealthComponent::TriggerDeath(AActor* Instigator, FGameplayEffectContextHandle Context, FGameplayTag DeathEventTag)
 {
-#if WITH_SERVER_CODE
 	if (!DeathEventTag.MatchesTag(ExtendedCommonAbilities::GameplayTags::Event_Death))
 	{
 		UE_LOG(LogAbilitySystem, Error, TEXT("[%s] TriggerDeath: DeathEventTag must be %s or a child tag."),
@@ -119,14 +120,16 @@ void UCommonHealthComponent::TriggerDeath(AActor* Instigator, FGameplayEffectCon
 
 	if (bSendGameplayMessage)
 	{
-		// broadcast event to everyone
-		FGameplayEventData Message = EventData;
-		Message.EventTag = GameplayMessageChannel;
+		if (const TSharedPtr<FAsyncMessageSystemBase> Sys = UAsyncMessageWorldSubsystem::GetSharedMessageSystem(GetWorld()))
+		{
+			// broadcast event to everyone
+			FGameplayEventData Message = EventData;
+			Message.EventTag = GameplayMessageChannel;
 
-		UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
-		MessageSubsystem.BroadcastMessage(Message.EventTag, Message);
+			const FInstancedStruct Payload = FInstancedStruct::Make<FGameplayEventData>(MoveTemp(Message));
+			Sys->QueueMessageForBroadcast(Message.EventTag, Payload);
+		}
 	}
-#endif // WITH_SERVER_CODE
 }
 
 void UCommonHealthComponent::StartDeath()
@@ -200,7 +203,6 @@ void UCommonHealthComponent::OnRep_HealthState(ECommonHealthState OldHealthState
 
 void UCommonHealthComponent::OnHPChanged(const FOnAttributeChangeData& ChangeData)
 {
-#if WITH_SERVER_CODE
 	if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
 	{
 		FGameplayEventData EventData;
@@ -226,13 +228,15 @@ void UCommonHealthComponent::OnHPChanged(const FOnAttributeChangeData& ChangeDat
 
 		if (bSendGameplayMessage)
 		{
-			// broadcast event to everyone
-			FGameplayEventData Message = EventData;
-			Message.EventTag = GameplayMessageChannel;
+			if (const TSharedPtr<FAsyncMessageSystemBase> Sys = UAsyncMessageWorldSubsystem::GetSharedMessageSystem(GetWorld()))
+			{
+				// broadcast event to everyone
+				FGameplayEventData Message = EventData;
+				Message.EventTag = GameplayMessageChannel;
 
-			UGameplayMessageSubsystem& MessageSubsystem = UGameplayMessageSubsystem::Get(this);
-			MessageSubsystem.BroadcastMessage(Message.EventTag, Message);
+				const FInstancedStruct Payload = FInstancedStruct::Make<FGameplayEventData>(MoveTemp(Message));
+				Sys->QueueMessageForBroadcast(Message.EventTag, Payload);
+			}
 		}
 	}
-#endif // WITH_SERVER_CODE
 }
