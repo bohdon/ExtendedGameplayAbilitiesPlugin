@@ -27,6 +27,7 @@ namespace ExtendedCommonAbilities::GameplayTags
 	UE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InitState_DataInitialized);
 	UE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InitState_GameplayReady);
 
+	UE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Death);
 	UE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Death_Dead);
 	UE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Death_Dying);
 }

@@ -23,6 +23,7 @@ namespace ExtendedCommonAbilities::GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InitState_DataInitialized, "InitState.DataInitialized", "3: The available data has been initialized for this actor/component, but it is not ready for full gameplay");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InitState_GameplayReady, "InitState.GameplayReady", "4: The actor/component is fully ready for active gameplay");
 
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Death, "State.Death", "Dead or dying");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Death_Dead, "State.Death.Dead", "Death and any FX or animation have finished");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Death_Dying, "State.Death.Dying", "Death has started, final FX or animation is being played");
 }
