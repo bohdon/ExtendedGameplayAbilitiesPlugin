@@ -20,8 +20,5 @@ const UInputAction* UGameplayTagInputConfig::FindInputActionByTag(const FGamepla
 			return Action.InputAction;
 		}
 	}
-
-	UE_LOG(LogAbilitySystem, Error, TEXT("%s - No input action mapped to tag: %s"), *GetName(), *InputTag.ToString());
-
 	return nullptr;
 }
