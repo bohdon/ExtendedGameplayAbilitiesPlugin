@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "AbilitySystemLog.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -74,7 +75,8 @@ UPrimitiveComponent* UAnimNotifyState_GameplayEventCollision::SpawnCollision(USk
 
 	if (UPrimitiveComponent* CollisionComp = NewObject<UPrimitiveComponent>(MeshComp, ComponentClass, NAME_None, RF_Transient))
 	{
-		CollisionComp->SetCollisionProfileName(CollisionProfileName.Name);
+		CollisionComp->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+		CollisionComp->SetGenerateOverlapEvents(true);
 		CollisionComp->SetupAttachment(MeshComp, SocketName);
 		CollisionComp->SetRelativeLocationAndRotation(Location, Rotation);
 
@@ -110,6 +112,9 @@ UPrimitiveComponent* UAnimNotifyState_GameplayEventCollision::SpawnCollision(USk
 		}
 
 		CollisionComp->RegisterComponent();
+
+		// enable collision and update initial overlaps
+		CollisionComp->SetCollisionProfileName(CollisionProfileName.Name, true);
 
 		return CollisionComp;
 	}
@@ -158,6 +163,9 @@ void UAnimNotifyState_GameplayEventCollision::OnBeginOverlap(UPrimitiveComponent
 		return;
 	}
 
+	UE_LOG(LogAbilitySystem, VeryVerbose, TEXT("%s: %hs %s (%s)"),
+		*GetNameSafe(OverlappedComponent->GetOwner()), __func__, *OtherComp->GetReadableName(), *GetNameSafe(GetOuter()));
+
 	AActor* OwningActor = OverlappedComponent->GetOwner();
 	if (UAbilitySystemComponent* AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningActor))
 	{
@@ -202,6 +210,9 @@ void UAnimNotifyState_GameplayEventCollision::OnEndOverlap(UPrimitiveComponent* 
 	{
 		return;
 	}
+
+	UE_LOG(LogAbilitySystem, VeryVerbose, TEXT("%s: %hs %s (%s)"),
+		*GetNameSafe(OverlappedComponent->GetOwner()), __func__, *OtherComp->GetReadableName(), *GetNameSafe(GetOuter()));
 
 	AActor* OwningActor = OverlappedComponent->GetOwner();
 	if (UAbilitySystemComponent* AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningActor))
