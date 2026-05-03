@@ -6,6 +6,7 @@
 #include "AbilitySystemGlobals.h"
 #include "DataRegistrySubsystem.h"
 #include "ExtendedAbilitySystemComponent.h"
+#include "GameplayCueManager.h"
 #include "Engine/Engine.h"
 #include "GameFramework/GameStateBase.h"
 #include "Phases/AbilityGamePhaseComponent.h"
@@ -297,4 +298,19 @@ UAbilityGamePhaseComponent* UExtendedAbilitySystemStatics::GetAbilityGamePhaseCo
 		}
 	}
 	return nullptr;
+}
+
+void UExtendedAbilitySystemStatics::ExecuteGameplayCueLocal(AActor* TargetActor, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& Parameters)
+{
+	UGameplayCueManager::ExecuteGameplayCue_NonReplicated(TargetActor, GameplayCueTag, Parameters);
+}
+
+void UExtendedAbilitySystemStatics::AddGameplayCueLocal(AActor* TargetActor, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& Parameters)
+{
+	UGameplayCueManager::AddGameplayCue_NonReplicated(TargetActor, GameplayCueTag, Parameters);
+}
+
+void UExtendedAbilitySystemStatics::RemoveGameplayCueLocal(AActor* TargetActor, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& Parameters)
+{
+	UGameplayCueManager::RemoveGameplayCue_NonReplicated(TargetActor, GameplayCueTag, Parameters);
 }

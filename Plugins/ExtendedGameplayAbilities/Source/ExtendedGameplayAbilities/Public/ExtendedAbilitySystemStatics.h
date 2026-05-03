@@ -166,4 +166,16 @@ public:
 	/** Return the UAbilityGamePhaseComponent from the game state. */
 	UFUNCTION(BlueprintPure, Meta = (WorldContext = "WorldContextObject"), Category = "Ability|GamePhases")
 	static UAbilityGamePhaseComponent* GetAbilityGamePhaseComponent(const UObject* WorldContextObject);
+
+	/** Execute a gameplay cue locally only. */
+	UFUNCTION(BlueprintCallable, Category = "GameplayCue", Meta = (AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue"))
+	static void ExecuteGameplayCueLocal(AActor* TargetActor, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& Parameters);
+
+	/** Add a gameplay cue locally only. */
+	UFUNCTION(BlueprintCallable, Category = "GameplayCue", Meta = (AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue"))
+	static void AddGameplayCueLocal(AActor* TargetActor, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& Parameters);
+
+	/** Remove a local only gameplay cue. */
+	UFUNCTION(BlueprintCallable, Category = "GameplayCue", Meta = (AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue"))
+	static void RemoveGameplayCueLocal(AActor* TargetActor, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& Parameters);
 };
