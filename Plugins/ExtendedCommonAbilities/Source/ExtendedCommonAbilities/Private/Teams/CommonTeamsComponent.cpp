@@ -74,6 +74,12 @@ int32 UCommonTeamsComponent::GetLeastPopulatedTeam() const
 	AGameStateBase* GameState = GetGameStateChecked<AGameStateBase>();
 	for (const TObjectPtr<APlayerState>& PlayerState : GameState->PlayerArray)
 	{
+		if (!PlayerState)
+		{
+			// can be null when level-streamed characters are removed from world
+			continue;
+		}
+
 		if (PlayerState->IsInactive())
 		{
 			continue;
@@ -192,6 +198,12 @@ void UCommonTeamsComponent::AssignTeamsForPlayers()
 	AGameStateBase* GameState = GetGameStateChecked<AGameStateBase>();
 	for (const TObjectPtr<APlayerState>& PlayerState : GameState->PlayerArray)
 	{
+		if (!PlayerState)
+		{
+			// can be null when level-streamed characters are removed from world
+			continue;
+		}
+
 		AssignTeamForPlayer(PlayerState);
 	}
 }
