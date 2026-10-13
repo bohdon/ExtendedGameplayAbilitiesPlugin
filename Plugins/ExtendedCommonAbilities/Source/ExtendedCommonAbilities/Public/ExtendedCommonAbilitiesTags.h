@@ -19,6 +19,7 @@ namespace ExtendedCommonAbilities::GameplayTags
 	UE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Damage_Outgoing);
 	UE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Death);
 	UE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Death_SelfDestruct);
+	UE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Death_FellOutOfWorld);
 
 	UE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayMessage_Death);
 

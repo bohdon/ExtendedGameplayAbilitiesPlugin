@@ -15,6 +15,7 @@ namespace ExtendedCommonAbilities::GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Damage_Outgoing, "Event.Damage.Outgoing", "Triggered when damage is dealt by this ability system");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Death, "Event.Death", "Triggered when a character dies from health reaching 0 or other causes");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Death_SelfDestruct, "Event.Death.SelfDestruct", "Triggered when character dies from self destruct");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Event_Death_FellOutOfWorld, "Event.Death.FellOutOfWorld", "Triggered when character dies from falling out of the world");
 
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayMessage_Death, "GameplayMessage.Death", "Broadcast when a character dies");
 
